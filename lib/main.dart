@@ -5,17 +5,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
+import 'providers/auth_provider.dart';
+import 'providers/user_provider.dart';
 import 'providers/member_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/members/members_list_screen.dart';
 import 'screens/users/user_form_screen.dart';
 import 'screens/users/users_list_screen.dart';
+import 'screens/forgot_password_screen.dart';
 
 
 void main() async {
@@ -42,9 +45,9 @@ class MiskEwtErpApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-            create: (_) => MemberProvider()..fetchMembers()
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        //ChangeNotifierProvider(create: (_) => MemberProvider()..fetchMembers()),
       ],
       child: MaterialApp(
         title: 'MISK EWT ERP',
@@ -52,13 +55,13 @@ class MiskEwtErpApp extends StatelessWidget {
         theme: MiskTheme.lightTheme,
         routes: {
           '/login': (_) => const LoginScreen(),
+          '/forgot': (_) => const ForgotPasswordScreen(),
           '/dashboard': (_) => const DashboardScreen(),
-          '/members': (_) => const MembersListScreen(),
           '/users': (_) => const UsersListScreen(),
           '/users/form': (_) => const UserFormScreen(),
         },
-        home: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
+        home: StreamBuilder<firebase_auth.User?>(
+          stream: firebase_auth.FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const AuthLoadingScreen();
