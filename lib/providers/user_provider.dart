@@ -1,29 +1,28 @@
 // lib/providers/user_provider.dart
-
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart';
 
 class UserProvider extends ChangeNotifier {
-  final _service = UserService();
+  final UserService _service = UserService();
+
   List<UserModel> _all = [];
-  bool _busy = false;
   String _filter = '';
+  bool _busy = true;
 
   List<UserModel> get users => _filter.isEmpty
       ? _all
-      : _all
-      .where((u) =>
+      : _all.where((u) =>
   u.name.toLowerCase().contains(_filter) ||
       u.email.toLowerCase().contains(_filter) ||
-      u.role.name.toLowerCase().contains(_filter))
-      .toList();
-  bool get isBusy => _busy;
+      // Cannot filter by roleId on the client, this would require an extra read.
+      // This is a trade-off for a better data structure.
+      (u.phone ?? '').toLowerCase().contains(_filter) ||
+      (u.status ?? '').toLowerCase().contains(_filter)
+  ).toList();
 
-  void setFilter(String f) {
-    _filter = f.toLowerCase();
-    notifyListeners();
-  }
+  bool get isBusy => _busy;
 
   Future<void> fetchUsers() async {
     _busy = true;
@@ -35,21 +34,25 @@ class UserProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> saveUser(UserModel u) async {
-    _busy = true;
+  void setFilter(String query) {
+    _filter = query.trim().toLowerCase();
     notifyListeners();
-    if (u.uid.isEmpty) {
-      await _service.addUser(u);
+  }
+
+  Future<void> saveUser(UserModel user) async {
+    if (user.uid.isEmpty) {
+      await _service.addUser(user);
     } else {
-      await _service.updateUser(u);
+      await _service.updateUser(user);
     }
-    _busy = false;
-    notifyListeners();
   }
 
   Future<void> removeUser(String uid) async {
     await _service.deleteUser(uid);
-    _all.removeWhere((u) => u.uid == uid);
-    notifyListeners();
+  }
+
+  UserModel? getCurrentUserByEmail(String? email) {
+    if (email == null) return null;
+    return _all.firstWhereOrNull((u) => u.email == email);
   }
 }

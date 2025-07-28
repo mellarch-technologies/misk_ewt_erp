@@ -11,13 +11,12 @@ class UserFormScreen extends StatefulWidget {
   const UserFormScreen({super.key, this.user});
 
   @override
-  State<UserFormScreen> createState() => _UserFormScreenState();
+  State createState() => _UserFormScreenState();
 }
 
 class _UserFormScreenState extends State<UserFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _email, _phone, _address, _designation, _occupation,
-      _gender, _photo, _qualification, _status;
+  late String _name, _email, _phone, _address, _designation, _occupation, _gender, _photo, _qualification, _status;
   late UserRole _role;
   bool _superAdmin = false, _allowPhoto = false;
 
@@ -56,16 +55,14 @@ class _UserFormScreenState extends State<UserFormScreen> {
               TextFormField(
                 initialValue: _name,
                 decoration: const InputDecoration(labelText: 'Name'),
-                validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
                 onSaved: (v) => _name = v!.trim(),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 initialValue: _email,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (v) =>
-                v == null || !v.contains('@') ? 'Valid email' : null,
+                validator: (v) => v == null || !v.contains('@') ? 'Valid email' : null,
                 onSaved: (v) => _email = v!.trim(),
               ),
               const SizedBox(height: 16),
@@ -73,10 +70,12 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 value: _role,
                 decoration: const InputDecoration(labelText: 'Role'),
                 items: UserRole.values
-                    .map((r) => DropdownMenuItem(
-                  value: r,
-                  child: Text(r.name.toUpperCase()),
-                ))
+                    .map(
+                      (r) => DropdownMenuItem(
+                    value: r,
+                    child: Text(r.name.toUpperCase()),
+                  ),
+                )
                     .toList(),
                 onChanged: (v) => setState(() => _role = v!),
               ),
