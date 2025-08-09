@@ -1,4 +1,3 @@
-// lib/providers/user_provider.dart
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import '../models/user_model.dart';
@@ -7,7 +6,7 @@ import '../services/user_service.dart';
 class UserProvider extends ChangeNotifier {
   final UserService _service = UserService();
 
-  List<UserModel> _all = [];
+  List<UserModel> _all = []; // <-- CORRECT TYPE
   String _filter = '';
   bool _busy = true;
 
@@ -16,27 +15,32 @@ class UserProvider extends ChangeNotifier {
       : _all.where((u) =>
   u.name.toLowerCase().contains(_filter) ||
       u.email.toLowerCase().contains(_filter) ||
-      // Cannot filter by roleId on the client, this would require an extra read.
-      // This is a trade-off for a better data structure.
       (u.phone ?? '').toLowerCase().contains(_filter) ||
-      (u.status ?? '').toLowerCase().contains(_filter)
-  ).toList();
+      (u.status ?? '').toLowerCase().contains(_filter)).toList();
 
   bool get isBusy => _busy;
 
   Future<void> fetchUsers() async {
     _busy = true;
     notifyListeners();
-    _service.streamUsers().listen((data) {
-      _all = data;
+    try {
+      _all = await _service.getUsersOnce();
+    } catch (e) {
+      print("Error fetching users: $e");
+    } finally {
       _busy = false;
       notifyListeners();
-    });
+    }
   }
 
   void setFilter(String query) {
     _filter = query.trim().toLowerCase();
     notifyListeners();
+  }
+
+  UserModel? getCurrentUserByEmail(String? email) {
+    if (email == null) return null;
+    return _all.firstWhereOrNull((u) => u.email == email);
   }
 
   Future<void> saveUser(UserModel user) async {
@@ -45,14 +49,11 @@ class UserProvider extends ChangeNotifier {
     } else {
       await _service.updateUser(user);
     }
+    await fetchUsers(); // Always re-fetch to update list
   }
 
   Future<void> removeUser(String uid) async {
     await _service.deleteUser(uid);
-  }
-
-  UserModel? getCurrentUserByEmail(String? email) {
-    if (email == null) return null;
-    return _all.firstWhereOrNull((u) => u.email == email);
+    await fetchUsers(); // Always re-fetch to update list
   }
 }

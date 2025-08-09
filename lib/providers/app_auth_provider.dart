@@ -38,4 +38,12 @@ class AppAuthProvider extends ChangeNotifier {
     // We will add permission clearing logic here later
     await _service.signOut();
   }
+
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _service.sendPasswordResetEmail(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

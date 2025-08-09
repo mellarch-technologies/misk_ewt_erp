@@ -10,6 +10,8 @@ import 'providers/user_provider.dart';
 import 'providers/permission_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/users/users_list_screen.dart';
+import 'screens/users/user_form_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +34,13 @@ class MiskEwtErpApp extends StatelessWidget {
         title: 'MISK EWT ERP',
         debugShowCheckedModeBanner: false,
         theme: MiskTheme.lightTheme,
+        routes: {
+          '/login': (_) => const LoginScreen(),
+          '/dashboard': (_) => const DashboardScreen(),
+          '/users_list': (_) => const UsersListScreen(),
+          '/users': (_) => const UsersListScreen(),
+          '/users/form': (_) => const UserFormScreen(),
+        },
         home: const AuthWrapper(),
       ),
     );
@@ -46,7 +55,7 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  firebase_auth.User? _lastUser; // To detect auth state changes
+  firebase_auth.User? _lastUser;
 
   @override
   void didChangeDependencies() {
@@ -56,9 +65,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     if (auth.user != _lastUser) {
       if (auth.user != null && _lastUser == null) {
-        // User just logged in
         if (mounted) {
-          // Post-frame callback to ensure ScaffoldMessenger is available
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -68,20 +75,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
             );
           });
         }
-      } else if (auth.user == null && _lastUser != null) {
-        // User just logged out
-        if (mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Logged out successfully!'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          });
-        }
       }
-      _lastUser = auth.user; // Update last known user
+      _lastUser = auth.user;
     }
   }
 

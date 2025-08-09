@@ -5,7 +5,7 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
-  final DocumentReference? roleId; // Correct type: DocumentReference
+  final DocumentReference? roleId;
   final bool isSuperAdmin;
   final String? designation;
   final String? occupation;
@@ -22,7 +22,7 @@ class UserModel {
     required this.uid,
     required this.name,
     required this.email,
-    this.roleId, // Updated to be nullable
+    this.roleId,
     this.isSuperAdmin = false,
     this.designation,
     this.occupation,
@@ -41,7 +41,7 @@ class UserModel {
       uid: id,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
-      roleId: json['roleId'] as DocumentReference?, // Correctly cast from Firestore
+      roleId: json['roleId'] as DocumentReference?,
       isSuperAdmin: json['isSuperAdmin'] ?? false,
       designation: json['designation'] as String?,
       occupation: json['occupation'] as String?,
@@ -59,7 +59,7 @@ class UserModel {
   Map<String, dynamic> toJson() => {
     'name': name,
     'email': email,
-    'roleId': roleId, // Will store the reference object
+    'roleId': roleId,
     'isSuperAdmin': isSuperAdmin,
     if (designation != null) 'designation': designation,
     if (occupation != null) 'occupation': occupation,
@@ -72,4 +72,12 @@ class UserModel {
     if (qualification != null) 'qualification': qualification,
     if (status != null) 'status': status,
   };
+
+  // Add the initials getter back to UserModel
+  String get initials {
+    final parts = name.trim().split(' ');
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0];
+    return parts[0][0] + parts[1][0];
+  }
 }

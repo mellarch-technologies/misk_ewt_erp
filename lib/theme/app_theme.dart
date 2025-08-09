@@ -2,50 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MiskTheme {
-  // MISK Brand Colors - Authentic Islamic Design Palette
-  static const Color miskGold = Color(0xFFDAA520);        // Primary: Luxury, wisdom
-  static const Color miskDarkGreen = Color(0xFF2F5233);   // Secondary: Islamic tradition
-  static const Color miskLightGreen = Color(0xFF4A7C59);  // Tertiary: Harmony
-  static const Color miskCream = Color(0xFFFDF6E3);       // Background: Purity
-  static const Color miskTextDark = Color(0xFF2C2C2C);    // Text: Professional readability
-  static const Color miskWhite = Color(0xFFFFFFFF);       // Pure white
-  static const Color miskErrorRed = Color(0xFFD32F2F);    // Error states
+// MISK Brand Colors - Authentic Islamic Design Palette
+  static const Color miskGold = Color(0xFFDAA520); // Primary: Luxury, wisdom
+  static const Color miskDarkGreen = Color(0xFF2F5233); // Secondary: Islamic tradition
+  static const Color miskLightGreen = Color(0xFF4A7C59); // Tertiary: Harmony
+  static const Color miskCream = Color(0xFFFDF6E3); // Background: Purity
+  static const Color miskTextDark = Color(0xFF2C2C2C); // Text: Professional readability
+  static const Color miskWhite = Color(0xFFFFFFFF); // Pure white
+  static const Color miskErrorRed = Color(0xFFD32F2F); // Error states
 
-  // Gradient Colors for Enhanced UI
+// Gradient Colors for Enhanced UI
   static const LinearGradient goldGradient = LinearGradient(
     colors: [Color(0xFFDAA520), Color(0xFFB8860B)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-
   static const LinearGradient greenGradient = LinearGradient(
     colors: [Color(0xFF2F5233), Color(0xFF4A7C59)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-
   static const LinearGradient creamGradient = LinearGradient(
     colors: [Color(0xFFFDF6E3), Color(0xFFF4F1E8)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
-  // Glass Morphism Effects
+// Glass Morphism Effects
   static const double glassBlur = 10.0;
   static const double glassOpacity = 0.1;
 
-  // Border Radius Constants
+// Border Radius Constants
   static const double borderRadiusSmall = 8.0;
   static const double borderRadiusMedium = 12.0;
   static const double borderRadiusLarge = 16.0;
   static const double borderRadiusXLarge = 20.0;
 
-  // Elevation Constants
+// Elevation Constants
   static const double elevationLow = 2.0;
   static const double elevationMedium = 4.0;
   static const double elevationHigh = 8.0;
 
-  // Spacing Constants
+// Spacing Constants
   static const double spacingXSmall = 4.0;
   static const double spacingSmall = 8.0;
   static const double spacingMedium = 16.0;
@@ -55,7 +53,6 @@ class MiskTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-
       // Color Scheme
       colorScheme: ColorScheme.fromSeed(
         seedColor: miskGold,
@@ -71,9 +68,7 @@ class MiskTheme {
         onSurface: miskTextDark,
         onBackground: miskTextDark,
       ),
-
       scaffoldBackgroundColor: miskCream,
-
       // Typography - Using Google Fonts instead of custom font
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
         displayLarge: GoogleFonts.poppins(
@@ -127,7 +122,6 @@ class MiskTheme {
           color: miskWhite,
         ),
       ),
-
       // AppBar Theme
       appBarTheme: AppBarTheme(
         backgroundColor: miskDarkGreen,
@@ -149,7 +143,6 @@ class MiskTheme {
           ),
         ),
       ),
-
       // Card Theme
       cardTheme: const CardThemeData(
         color: miskWhite,
@@ -162,7 +155,6 @@ class MiskTheme {
         ),
         margin: EdgeInsets.all(spacingSmall),
       ),
-
       // Button Themes
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -184,7 +176,6 @@ class MiskTheme {
           ),
         ),
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: miskGold,
@@ -203,7 +194,6 @@ class MiskTheme {
           ),
         ),
       ),
-
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: miskDarkGreen,
@@ -223,7 +213,6 @@ class MiskTheme {
           ),
         ),
       ),
-
       // Input Field Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -274,7 +263,6 @@ class MiskTheme {
         prefixIconColor: miskDarkGreen,
         suffixIconColor: miskDarkGreen,
       ),
-
       // Additional theme components
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -283,11 +271,9 @@ class MiskTheme {
         }),
         checkColor: WidgetStateProperty.all(miskWhite),
       ),
-
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: miskGold,
       ),
-
       snackBarTheme: SnackBarThemeData(
         backgroundColor: miskDarkGreen,
         contentTextStyle: GoogleFonts.poppins(color: miskWhite),
