@@ -4,7 +4,6 @@ import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_lock_provider.dart';
 import '../../theme/app_theme.dart';
-import '../dashboard_screen.dart';
 import '../../widgets/snackbar_helper.dart';
 
 class AppLockScreen extends StatefulWidget {
@@ -52,12 +51,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
     try {
       if (lock.verifyPin(_pinController.text.trim())) {
         lock.markUnlocked();
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          );
-        }
+        // Do not navigate; AuthWrapper will rebuild to AppShell once unlocked
       } else {
         setState(() => _error = 'Invalid PIN');
       }
@@ -79,10 +73,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
       if (!mounted) return;
       if (didAuth) {
         context.read<AppLockProvider>().markUnlocked();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        );
+        // No navigation here; let AuthWrapper show AppShell
       } else {
         SnackbarHelper.showInfo(context, 'Biometric authentication cancelled');
       }
@@ -99,8 +90,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
       backgroundColor: MiskTheme.miskCream,
       appBar: AppBar(
         title: const Text('Unlock'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
+        // rely on theme AppBar colors for consistency
         automaticallyImplyLeading: false,
       ),
       body: Center(

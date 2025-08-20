@@ -81,8 +81,7 @@ class _RoleFormScreenState extends State<RoleFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.role == null ? 'Add Role' : 'Edit Role'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
+        // rely on theme for AppBar colors
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

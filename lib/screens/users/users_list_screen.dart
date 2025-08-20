@@ -27,16 +27,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading users...'),
-        ],
-      ),
-    );
+    // Unified skeleton loader
+    return const SkeletonList();
   }
 
   Future<void> _deleteUser(UserModel user) async {
@@ -107,13 +99,13 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingSmall),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.pushNamed(context, '/users/form', arguments: user),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(MiskTheme.spacingSmall),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -122,7 +114,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                 backgroundColor: avatarColor,
                 child: Text(user.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MiskTheme.spacingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,12 +146,12 @@ class _UsersListScreenState extends State<UsersListScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MiskTheme.spacingXSmall),
                     Text(user.email, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: MiskTheme.spacingSmall),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: MiskTheme.spacingSmall,
+                      runSpacing: MiskTheme.spacingSmall,
                       children: [
                         if (designation != null)
                           Chip(
@@ -212,8 +204,6 @@ class _UsersListScreenState extends State<UsersListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Users'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -224,7 +214,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -234,8 +224,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onChanged: (value) =>
-                  context.read<UserProvider>().setFilter(value),
+              onChanged: (value) => context.read<UserProvider>().setFilter(value),
             ),
           ),
           Expanded(

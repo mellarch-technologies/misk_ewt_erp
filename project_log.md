@@ -624,3 +624,58 @@ python scripts/reset_all_demo.py --seed-phase2 --seed-events --seed-demo-donatio
 # Or module-only reseed (idempotent; add --clean to wipe this seedTag first):
 python scripts/seed_demo_donations.py --clean
 ```
+
+## [2025-08-20] Phase 1 UI/UX Shell + Donations Nav + Git Hygiene
+
+What
+- AppShell: responsive navigation shell with IndexedStack preserving tab state.
+  - BottomNavigationBar on narrow screens; NavigationRail on wide screens.
+  - Tabs: Dashboard, Initiatives, Campaigns, Donations, Settings.
+- Donations navigation: Drawer link opens DonationsEntryScreen (pick Initiative, optional Campaign → filtered DonationsListScreen).
+- Dashboard: removed temporary local bottom nav (shell owns footer nav now); Drawer retained for wide screens.
+- Theme: Poppins + brand tokens already applied; Phase 1 will polish tokens/spacing across screens next.
+- Git hygiene: added robust .gitignore to exclude secrets (service accounts) and build artifacts.
+
+How to Run
+- flutter pub get
+- flutter run
+- After login → AppShell tabs visible; Drawer still available. Donations link shows picker then filtered list.
+
+Resume Checklist (Phase 1 UI/UX)
+- Apply theme tokens/typography consistently to lists/cards/forms (spacing, radii, shadows) — Next.
+- Shared empty/error/skeleton components across screens — Next.
+- AppBar/header unification and spacing pass — Next.
+- Avatar Photo Upload backend (Shared Hosting/Drive adapter) — After polish.
+- Banners/Posters — Deferred until after avatar upload.
+
+Notes
+- Ensure service account JSON is never committed; .gitignore covers it.
+## [2025-08-20] Phase 1 UI/UX — Footer Nav Stability + Header Unification (Batch 1.1)
+- Fixed footer nav flicker: removed explicit navigation to '/dashboard' in LoginScreen; AuthWrapper now shows AppShell directly.
+- App Lock: on unlock, rely on AuthWrapper to return to AppShell (no direct Dashboard route), preserving tabs.
+- Unified AppBar styling (theme-driven) in User Form, Payment Settings, App Lock Settings, App Lock screens.
+- Cleaned analyzer warnings by removing unused imports; remaining deprecation warnings noted for App Lock timeout radios.
+
+Next
+- Tokenized spacing/radii/shadows across common cards/forms.
+- Migrate App Lock timeout picker to RadioGroup to silence deprecations.
+## [2025-08-20] Resume Checklist Completion
+- Tasks: Form polish + full CRUD wiring confirmed. Delete uses SecurityService.ensureReauthenticated (PIN/password).
+- Donations: Bulk reconcile UI added ("Mark filtered reconciled"), quick actions (confirm, toggle bank reconciled, edit bank ref) hooked to DonationService.quickUpdate with roll-up recompute.
+- Campaigns: Form includes optional fields (start/end dates, estimatedCost, proposedBy, media URLs) and initiative link; provider/service CRUD verified.
+- QA: Payment Settings E2E present (PaymentSettingsScreen + PaymentSettingsService load/save + basic validation); Global roll-up recompute action available in GlobalSettings.
+- Build fix: Resolved DropdownButtonFormField compile error in tasks_list_screen.dart by using `value:` instead of `initialValue:` and revalidating; static analyzer now clean on touched files.
+
+Next Small Polishes
+- Apply shared state views to any remaining screens if missed (e.g., Roles).
+- Token pass for spacing/radii/shadows on common cards/forms.
+- Migrate deprecated RadioListTile usage in App Lock timeout to new RadioGroup when convenient.
+
+## [2025-08-20] UX Nav — Back/Home Leading on Tab Roots
+- Added BackOrHomeButton and wired it into Initiatives, Campaigns, Donations, and Settings AppBars.
+- Behavior: shows back arrow when a route can pop; shows Home icon at tab root to jump to Dashboard.
+- AppShell now exposes a global key for programmatic tab switching; AuthWrapper mounts AppShell with this key.
+- Static analyzer: PASS on all modified files.
+
+Next Phase Kickoff
+- Begin Phase 1 polish: apply theme tokens (spacing/radii/typography) consistently across core list/forms. Batch 1 will target Users, Initiatives, and Campaigns.

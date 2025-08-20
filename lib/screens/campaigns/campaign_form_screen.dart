@@ -5,6 +5,7 @@ import '../../models/campaign_model.dart';
 import '../../providers/campaign_provider.dart';
 import '../../services/initiative_service.dart';
 import '../../models/initiative_model.dart';
+import '../../theme/app_theme.dart';
 
 class CampaignFormScreen extends StatefulWidget {
   final Campaign? campaign;
@@ -83,7 +84,7 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.campaign == null ? 'Add Campaign' : 'Edit Campaign')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -100,14 +101,14 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                 maxLines: 3,
                 onSaved: (v) => _description = v,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               DropdownButtonFormField<String>(
                 initialValue: _category,
                 items: _categories.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                 decoration: const InputDecoration(labelText: 'Category'),
                 onChanged: (v) => setState(() => _category = v),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               FutureBuilder<List<Initiative>>(
                 future: initSvc.getInitiativesOnce(),
                 builder: (ctx, snap) {
@@ -121,7 +122,7 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               Row(
                 children: [
                   Expanded(
@@ -136,7 +137,7 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingXSmall),
               Row(
                 children: [
                   Expanded(
@@ -151,13 +152,13 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               TextFormField(
                 initialValue: _proposedBy,
                 decoration: const InputDecoration(labelText: 'Proposed By'),
                 onSaved: (v) => _proposedBy = v?.trim().isEmpty == true ? null : v?.trim(),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               TextFormField(
                 initialValue: _estimatedCost?.toString(),
                 decoration: const InputDecoration(labelText: 'Estimated Cost (INR)'),
@@ -167,21 +168,21 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                   _estimatedCost = t;
                 },
               ),
-              const Divider(height: 32),
+              const Divider(height: MiskTheme.spacingLarge),
               const Text('Media', style: TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingXSmall),
               TextFormField(
                 initialValue: _featureBannerUrl,
                 decoration: const InputDecoration(labelText: 'Feature Banner URL (wide image)'),
                 onSaved: (v) => _featureBannerUrl = (v == null || v.isEmpty) ? null : v.trim(),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingXSmall),
               TextFormField(
                 initialValue: _posterUrl,
                 decoration: const InputDecoration(labelText: 'Poster URL (single image)'),
                 onSaved: (v) => _posterUrl = (v == null || v.isEmpty) ? null : v.trim(),
               ),
-              const Divider(height: 32),
+              const Divider(height: MiskTheme.spacingLarge),
               const Text('Public App Controls', style: TextStyle(fontWeight: FontWeight.w700)),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -196,7 +197,7 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
                 value: _featured,
                 onChanged: (v) => setState(() => _featured = v),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MiskTheme.spacingMedium),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {

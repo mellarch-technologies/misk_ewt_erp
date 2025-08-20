@@ -30,7 +30,7 @@ class EmptyState extends StatelessWidget {
             Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             if (message != null) ...[
               const SizedBox(height: 6),
-              Text(message!, style: TextStyle(color: Colors.grey.shade700)),
+              Text(message!, style: TextStyle(color: Colors.grey.shade700), textAlign: TextAlign.center),
             ],
             if (action != null) ...[
               const SizedBox(height: 16),
@@ -78,3 +78,88 @@ class ErrorState extends StatelessWidget {
   }
 }
 
+// Lightweight skeleton line used for loading placeholders
+class SkeletonLine extends StatelessWidget {
+  final double height;
+  final double width; // fractional width if <=1, absolute if >1
+  final BorderRadius borderRadius;
+
+  const SkeletonLine({
+    super.key,
+    this.height = 14,
+    this.width = 1,
+    this.borderRadius = const BorderRadius.all(Radius.circular(8)),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final w = width <= 1 ? MediaQuery.of(context).size.width * width : width;
+    return Container(
+      height: height,
+      width: w,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: borderRadius,
+      ),
+    );
+  }
+}
+
+// List skeleton with configurable item count
+class SkeletonList extends StatelessWidget {
+  final int itemCount;
+  final EdgeInsets padding;
+
+  const SkeletonList({super.key, this.itemCount = 6, this.padding = const EdgeInsets.all(16)});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: padding,
+      itemCount: itemCount,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => const _SkeletonListTile(),
+    );
+  }
+}
+
+class _SkeletonListTile extends StatelessWidget {
+  const _SkeletonListTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        // Avatar placeholder
+        _SkeletonCircle(),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonLine(height: 16, width: 0.6),
+              SizedBox(height: 8),
+              SkeletonLine(height: 14, width: 0.8),
+              SizedBox(height: 6),
+              SkeletonLine(height: 14, width: 0.4),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonCircle extends StatelessWidget {
+  const _SkeletonCircle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(color: Colors.grey.shade300, shape: BoxShape.circle),
+    );
+  }
+}

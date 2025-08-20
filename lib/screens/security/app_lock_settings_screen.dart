@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_lock_provider.dart';
-import '../../theme/app_theme.dart';
 import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'package:local_auth/local_auth.dart';
@@ -98,8 +97,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Security & App Lock'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
+        // rely on theme AppBar colors for consistency
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

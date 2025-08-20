@@ -32,6 +32,7 @@ import 'screens/tasks/task_form_screen.dart';
 import 'screens/events_announcements/events_announcements_list_screen.dart';
 import 'screens/events_announcements/event_announcement_form_screen.dart';
 import 'screens/security/app_lock_screen.dart';
+import 'widgets/app_shell.dart';
 import 'widgets/snackbar_helper.dart';
 
 void main() async {
@@ -138,7 +139,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
       if (appLock.enabled && appLock.shouldLockNow()) {
         return const AppLockScreen();
       }
-      return const DashboardScreen();
+      return AppShell(key: AppShell.shellKey);
     } else {
       // Reset welcome state so next login shows snackbar again
       if (_showedWelcome) _showedWelcome = false;

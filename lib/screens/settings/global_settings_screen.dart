@@ -7,6 +7,7 @@ import '../../theme/app_theme.dart';
 import 'payment_settings_screen.dart';
 import '../../services/rollup_service.dart';
 import '../../widgets/snackbar_helper.dart';
+import '../../widgets/back_or_home_button.dart';
 
 class GlobalSettingsScreen extends StatelessWidget {
   const GlobalSettingsScreen({super.key});
@@ -16,8 +17,8 @@ class GlobalSettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Global Settings'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
+        leading: const BackOrHomeButton(),
+        // rely on theme for colors to keep headers consistent
       ),
       body: ListView(
         children: [

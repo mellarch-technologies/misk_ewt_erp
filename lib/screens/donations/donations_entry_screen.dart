@@ -5,6 +5,8 @@ import '../../services/campaign_service.dart';
 import '../../models/initiative_model.dart';
 import '../../models/campaign_model.dart';
 import 'donations_list_screen.dart';
+import '../../widgets/back_or_home_button.dart';
+import '../../theme/app_theme.dart';
 
 class DonationsEntryScreen extends StatefulWidget {
   const DonationsEntryScreen({super.key});
@@ -64,7 +66,7 @@ class _DonationsEntryScreenState extends State<DonationsEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Donations')),
+      appBar: AppBar(title: const Text('Donations'), leading: const BackOrHomeButton()),
       body: FutureBuilder<List<Initiative>>(
         future: _initFuture,
         builder: (ctx, snapshot) {
@@ -79,6 +81,7 @@ class _DonationsEntryScreenState extends State<DonationsEntryScreen> {
             return const Center(child: Text('No initiatives found.'));
           }
           return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
             itemCount: items.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (ctx, i) {

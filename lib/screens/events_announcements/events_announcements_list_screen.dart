@@ -5,6 +5,8 @@ import '../../widgets/state_views.dart';
 import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'event_announcement_form_screen.dart';
+import '../../widgets/back_or_home_button.dart';
+import '../../theme/app_theme.dart';
 
 class EventsAnnouncementsListScreen extends StatefulWidget {
   const EventsAnnouncementsListScreen({super.key});
@@ -25,22 +27,14 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading events & announcements...'),
-        ],
-      ),
-    );
+    // Unified skeleton loader
+    return const SkeletonList();
   }
 
   Widget _filters(EventAnnouncementProvider p) {
     final types = const ['All', 'event', 'announcement'];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
       child: Row(
         children: [
           Expanded(
@@ -51,7 +45,7 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
               decoration: const InputDecoration(labelText: 'Type'),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MiskTheme.spacingSmall),
           Row(children: [
             Switch(value: p.publicOnly, onChanged: p.setPublicOnly),
             const Text('Public only'),
@@ -64,11 +58,11 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Events & Announcements')),
+      appBar: AppBar(title: const Text('Events & Announcements'), leading: const BackOrHomeButton()),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -80,7 +74,7 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
             ),
           ),
           Consumer<EventAnnouncementProvider>(builder: (_, p, __) => _filters(p)),
-          const SizedBox(height: 8),
+          const SizedBox(height: MiskTheme.spacingSmall),
           Expanded(
             child: Consumer<EventAnnouncementProvider>(
               builder: (context, provider, _) {
@@ -108,6 +102,7 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
                 return RefreshIndicator(
                   onRefresh: provider.fetchEvents,
                   child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
                     itemCount: items.length,
                     itemBuilder: (context, i) {
                       final e = items[i];

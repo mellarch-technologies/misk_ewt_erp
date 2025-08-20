@@ -7,6 +7,7 @@ import '../../widgets/state_views.dart';
 import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'task_form_screen.dart';
+import '../../theme/app_theme.dart';
 
 class TasksListScreen extends StatefulWidget {
   const TasksListScreen({super.key});
@@ -29,22 +30,22 @@ class _TasksListScreenState extends State<TasksListScreen> {
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading tasks...'),
-        ],
-      ),
-    );
+    // Unified skeleton loader
+    return const SkeletonList();
   }
 
-  List<String> _deriveStatuses(TaskProvider p) {
-    final s = <String>{'All'};
-    s.addAll(p.tasks.map((t) => t.status).where((e) => e.isNotEmpty));
-    return s.toList();
+  Future<void> _pickStatus(List<String> statuses) async {
+    final sel = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          children: statuses
+              .map((s) => ListTile(title: Text(s), onTap: () => Navigator.pop(ctx, s)))
+              .toList(),
+        ),
+      ),
+    );
+    if (sel != null) setState(() => _status = sel);
   }
 
   @override
@@ -59,7 +60,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -71,36 +72,46 @@ class _TasksListScreenState extends State<TasksListScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
             child: Consumer<TaskProvider>(
               builder: (_, p, __) {
-                final statuses = _deriveStatuses(p);
+                // derive statuses from current list
+                final set = <String>{'All'};
+                set.addAll(p.tasks.map((t) => t.status).where((e) => e.isNotEmpty));
+                final statuses = set.toList();
                 return Row(
                   children: [
                     Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: statuses.contains(_status) ? _status : 'All',
-                        items: statuses
-                            .map((s) => DropdownMenuItem<String>(value: s, child: Text(s)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _status = v ?? 'All'),
-                        decoration: const InputDecoration(labelText: 'Status'),
+                      child: TextButton(
+                        onPressed: () => _pickStatus(statuses),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.filter_list),
+                            const SizedBox(width: MiskTheme.spacingXSmall),
+                            Expanded(
+                              child: Text(
+                                'Status: ${statuses.contains(_status) ? _status : 'All'}',
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Row(children: [
-                      Switch(
-                        value: _myTasksOnly,
-                        onChanged: (v) => setState(() => _myTasksOnly = v),
-                      ),
-                      const Text('My tasks'),
-                    ]),
+                    const SizedBox(width: MiskTheme.spacingSmall),
+                    const Text('My tasks'),
+                    const SizedBox(width: MiskTheme.spacingXSmall),
+                    Switch(
+                      value: _myTasksOnly,
+                      onChanged: (v) => setState(() => _myTasksOnly = v),
+                    ),
                   ],
                 );
               },
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MiskTheme.spacingSmall),
           Expanded(
             child: Consumer<TaskProvider>(
               builder: (context, provider, _) {
@@ -138,6 +149,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                 return RefreshIndicator(
                   onRefresh: provider.fetchTasks,
                   child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
                     itemCount: items.length,
                     itemBuilder: (ctx, i) {
                       final t = items[i];

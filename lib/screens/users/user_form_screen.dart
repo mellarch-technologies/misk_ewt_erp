@@ -145,25 +145,25 @@ class _UserFormScreenState extends State<UserFormScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+          padding: const EdgeInsets.only(top: MiskTheme.spacingSmall, bottom: MiskTheme.spacingSmall),
           child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         ),
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.grey.shade300)),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(MiskTheme.spacingSmall),
             child: Column(
               children: [
                 for (int i = 0; i < children.length; i++) ...[
                   children[i],
-                  if (i != children.length - 1) const SizedBox(height: 16),
+                  if (i != children.length - 1) const SizedBox(height: MiskTheme.spacingSmall),
                 ]
               ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: MiskTheme.spacingSmall),
       ],
     );
   }
@@ -173,11 +173,9 @@ class _UserFormScreenState extends State<UserFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_currentUser == null ? 'Add User' : 'Edit User'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MiskTheme.spacingLarge),
         child: Form(
           key: _formKey,
           child: Column(
@@ -204,11 +202,11 @@ class _UserFormScreenState extends State<UserFormScreen> {
                                   fontWeight: FontWeight.bold),
                             ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: MiskTheme.spacingSmall),
                     Expanded(
                       child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: MiskTheme.spacingSmall,
+                        runSpacing: MiskTheme.spacingSmall,
                         children: [
                           if (_allowPhoto)
                             ElevatedButton.icon(
@@ -252,7 +250,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                       fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: MiskTheme.spacingLarge),
 
               // Sections
               _section('Basic Info', [
@@ -355,10 +353,10 @@ class _UserFormScreenState extends State<UserFormScreen> {
               ]),
 
               if (_errorMsg != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: MiskTheme.spacingXSmall),
                 Text(_errorMsg!, style: const TextStyle(color: Colors.red)),
               ],
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingXSmall),
               ElevatedButton.icon(
                 icon: _isSaving
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
@@ -368,7 +366,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: MiskTheme.miskGold,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: MiskTheme.spacingMedium),
                 ),
               )
             ],

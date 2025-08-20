@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_auth_provider.dart';
 import '../services/auth_service.dart';
 import 'forgot_password_screen.dart';
-import '../widgets/snackbar_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,11 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await authProvider.login(_email.trim(), _password);
-      // Explicitly navigate to dashboard on success to ensure immediate redirect
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
-        SnackbarHelper.showSuccess(context, 'Login Successful! Welcome to MISK ERP.');
-      }
+      // Remove explicit navigation; AuthWrapper will rebuild to AppShell on auth change.
+      // Also skip duplicate success snackbar; AuthWrapper shows a welcome message once.
     } on AuthFailure catch (e) {
       setState(() => _errorMessage = e.message);
     } catch (e) {

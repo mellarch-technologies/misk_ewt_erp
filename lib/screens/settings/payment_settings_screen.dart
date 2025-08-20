@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/snackbar_helper.dart';
 import '../../services/payment_settings_service.dart';
 
@@ -139,8 +138,6 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment Settings'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
         actions: [
           IconButton(
             tooltip: 'Test Config',

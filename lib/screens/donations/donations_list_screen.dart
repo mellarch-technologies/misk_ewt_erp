@@ -5,6 +5,8 @@ import '../../models/donation_model.dart';
 import '../../services/donation_service.dart';
 import '../../services/currency_helper.dart';
 import '../../widgets/snackbar_helper.dart';
+import '../../widgets/state_views.dart';
+import '../../theme/app_theme.dart';
 
 class DonationsListScreen extends StatelessWidget {
   final DocumentReference initiativeRef;
@@ -57,7 +59,11 @@ class _DonationsBodyState extends State<_DonationsBody> {
   Widget build(BuildContext context) {
     final allItems = Provider.of<List<Donation>>(context);
     if (allItems.isEmpty) {
-      return const Center(child: Text('No donations yet.'));
+      return const EmptyState(
+        icon: Icons.volunteer_activism_outlined,
+        title: 'No donations yet',
+        message: 'New donations will appear here as they are added.',
+      );
     }
 
     final methods = _deriveMethods(allItems);
@@ -74,14 +80,24 @@ class _DonationsBodyState extends State<_DonationsBody> {
       children: [
         if (widget.campaignRef != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingSmall,
+              MiskTheme.spacingMedium,
+              0,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Filtered by campaign', style: TextStyle(color: Colors.grey.shade700)),
             ),
           ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            MiskTheme.spacingMedium,
+            MiskTheme.spacingXSmall,
+            MiskTheme.spacingMedium,
+            MiskTheme.spacingXSmall,
+          ),
           child: LayoutBuilder(
             builder: (ctx, constraints) {
               final narrow = constraints.maxWidth < 640;
@@ -116,9 +132,9 @@ class _DonationsBodyState extends State<_DonationsBody> {
                 return Column(
                   children: [
                     methodField,
-                    const SizedBox(height: 8),
+                    const SizedBox(height: MiskTheme.spacingXSmall),
                     statusField,
-                    const SizedBox(height: 8),
+                    const SizedBox(height: MiskTheme.spacingXSmall),
                     Align(alignment: Alignment.centerLeft, child: reconSwitch),
                   ],
                 );
@@ -127,9 +143,9 @@ class _DonationsBodyState extends State<_DonationsBody> {
               return Row(
                 children: [
                   Expanded(child: methodField),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: MiskTheme.spacingSmall),
                   Expanded(child: statusField),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: MiskTheme.spacingSmall),
                   Flexible(child: Align(alignment: Alignment.centerLeft, child: reconSwitch)),
                 ],
               );
@@ -138,7 +154,7 @@ class _DonationsBodyState extends State<_DonationsBody> {
         ),
         // Bulk action row
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
           child: Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
@@ -176,6 +192,7 @@ class _DonationsBodyState extends State<_DonationsBody> {
         const Divider(height: 1),
         Expanded(
           child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
             itemCount: items.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (ctx, i) {

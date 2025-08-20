@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MISK ERP'),
-        backgroundColor: MiskTheme.miskGold,
+        // rely on theme colors to unify AppBar styling
       ),
       drawer: Drawer(
         child: ListView(
@@ -71,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.asset('assets/misk_logo.png', height: 40),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MiskTheme.spacingSmall),
                   const Text('MISK ERP Mini', style: TextStyle(color: Colors.white, fontSize: 18)),
                 ],
               ),
@@ -153,25 +153,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
                   elevation: 2,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(MiskTheme.spacingMedium),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text('Welcome to MISK ERP Mini', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
+                        SizedBox(height: MiskTheme.spacingXSmall),
                         Text('Use the navigation drawer to access different modules.'),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MiskTheme.spacingMedium),
                 Consumer<UserProvider>(
                   builder: (context, userProvider, _) {
                     final user = Provider.of<AppAuthProvider>(context).user;
@@ -180,13 +180,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     return Card(
                       elevation: 2,
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Current User: ${currentUser?.name ?? 'Unknown'}', style: const TextStyle(fontSize: 18)),
                             if (currentUser != null) ...[
-                              const SizedBox(height: 8),
+                              const SizedBox(height: MiskTheme.spacingXSmall),
                               Text('Email: ${currentUser.email}'),
                             ],
                           ],
@@ -195,11 +195,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MiskTheme.spacingMedium),
                 // KPI cards
                 Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
+                  spacing: MiskTheme.spacingSmall,
+                  runSpacing: MiskTheme.spacingSmall,
                   children: [
                     KpiCard(title: 'Users', icon: Icons.people, loadCount: () => _countOf('users')),
                     KpiCard(title: 'Roles', icon: Icons.security, loadCount: () => _countOf('roles')),
@@ -220,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           showModalBottomSheet(
             context: context,
             builder: (sheetContext) => Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(MiskTheme.spacingMedium),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

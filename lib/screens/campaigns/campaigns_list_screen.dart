@@ -5,6 +5,8 @@ import '../../providers/campaign_provider.dart';
 import '../../widgets/state_views.dart';
 import 'campaign_form_screen.dart';
 import '../donations/donations_list_screen.dart';
+import '../../widgets/back_or_home_button.dart';
+import '../../theme/app_theme.dart';
 
 class CampaignsListScreen extends StatefulWidget {
   const CampaignsListScreen({super.key});
@@ -24,7 +26,7 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
     });
   }
 
-  Widget _buildLoading() => const Center(child: CircularProgressIndicator());
+  Widget _buildLoading() => const SkeletonList();
 
   Widget _buildFilters(CampaignProvider provider) {
     final cats = <String>{}
@@ -68,11 +70,17 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Campaigns'),
+        leading: const BackOrHomeButton(),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingSmall,
+            ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -84,12 +92,12 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
             child: Consumer<CampaignProvider>(
               builder: (_, p, __) => _buildFilters(p),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MiskTheme.spacingSmall),
           Expanded(
             child: Consumer<CampaignProvider>(
               builder: (context, provider, _) {
@@ -114,6 +122,7 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
                 return RefreshIndicator(
                   onRefresh: provider.fetchCampaigns,
                   child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
                     itemCount: items.length,
                     itemBuilder: (ctx, i) {
                       final c = items[i];

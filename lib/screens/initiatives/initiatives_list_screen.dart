@@ -5,6 +5,8 @@ import '../../widgets/state_views.dart';
 import 'initiative_form_screen.dart';
 import '../../widgets/initiative_card.dart';
 import 'initiative_detail_screen.dart';
+import '../../widgets/back_or_home_button.dart';
+import '../../theme/app_theme.dart';
 
 class InitiativesListScreen extends StatefulWidget {
   const InitiativesListScreen({super.key});
@@ -25,16 +27,8 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading initiatives...'),
-        ],
-      ),
-    );
+    // Use shared skeletons for a consistent loading state
+    return const SkeletonList();
   }
 
   Widget _buildFilters(BuildContext context, InitiativeProvider provider) {
@@ -82,11 +76,16 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Initiatives')),
+      appBar: AppBar(title: const Text('Initiatives'), leading: const BackOrHomeButton()),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingMedium,
+              MiskTheme.spacingSmall,
+            ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -98,12 +97,12 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
             child: Consumer<InitiativeProvider>(
               builder: (context, provider, _) => _buildFilters(context, provider),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MiskTheme.spacingSmall),
           Expanded(
             child: Consumer<InitiativeProvider>(
               builder: (context, provider, _) {
@@ -139,14 +138,17 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
                       else if (width >= 600) crossAxisCount = 2;
 
                       return GridView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: MiskTheme.spacingSmall,
+                          vertical: MiskTheme.spacingSmall,
+                        ),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
+                          crossAxisSpacing: MiskTheme.spacingSmall,
+                          mainAxisSpacing: MiskTheme.spacingSmall,
                           childAspectRatio: 1.1,
                         ),
-                        itemCount: items.length,
+                        itemCount: provider.initiatives.length,
                         itemBuilder: (context, i) {
                           final initiative = items[i];
                           return InitiativeCard(
