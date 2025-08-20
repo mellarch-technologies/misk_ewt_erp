@@ -1,0 +1,32 @@
+# PermissionProvider Debug Output Log
+
+This file will capture debug output from PermissionProvider to help diagnose role and permission loading issues in the dashboard.
+
+## How to Use
+- Copy and paste the debug output from your app's console here after running and logging in as a user.
+- Include the following info for each test:
+  - User email
+  - Console output (especially lines starting with DEBUG:)
+  - Any warnings or errors
+
+## Example Entry
+---
+**User:** admin@misk.org.in
+**Console Output:**
+DEBUG: loadUserPermissions called with user:
+DEBUG: user = UserModel(...)
+DEBUG: Fetching role document from Firestore: roles/xyz
+DEBUG: Role document found: xyz
+DEBUG: Role data: {...}
+---
+
+**User:** test@domain.com
+**Console Output:**
+DEBUG: loadUserPermissions called with user:
+DEBUG: user = null
+DEBUG: user is null, permissions cleared.
+---
+
+## Add your debug output below:
+
+

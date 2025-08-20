@@ -1,0 +1,209 @@
+# Initiative goals beyond fundraising
+
+Absolutely—initiatives can and should support multiple goal types beyond pure fundraising, especially for something like “Masjid Project – Phase 2.” The structure suggested is solid:
+- Initiative
+  - Multiple Campaigns under the initiative
+  - Multiple Tasks under each Campaign
+  - Optional direct Tasks linked to the Initiative (not tied to a specific campaign)
+
+Below are practical, non-fundraising goal types that fit real-world mosque projects, along with example KPIs and how they map to campaigns and tasks.
+
+## 1) Construction & Infrastructure
+- Goals:
+  - Complete structural works (e.g., slab casting, roofing, minaret, ablution area)
+  - MEP completion (electrical, plumbing, HVAC)
+  - Safety and compliance certification
+- KPIs:
+  - Milestones completed vs planned
+  - % completion by trade (civil/electrical/plumbing)
+  - Inspection pass rate and NCRs (non-conformance reports)
+- Campaign ideas:
+  - “Phase 2 Civil Works”
+  - “Electrical Fit-Out”
+  - “Safety & Compliance”
+- Tasks:
+  - Contractor mobilization
+  - Site inspections
+  - Material approvals
+  - Final compliance audit
+
+## 2) Community Engagement & Awareness
+- Goals:
+  - Increase community awareness and participation
+  - Gather volunteer sign-ups for specific activities
+- KPIs:
+  - Attendance at events
+  - Volunteer registrations
+  - Social media reach/engagement
+- Campaign ideas:
+  - “Community Townhall Series”
+  - “Volunteer Drive – Phase 2”
+- Tasks:
+  - Design and distribute posters
+  - Announcements after Jumu’ah
+  - WhatsApp broadcast scheduling
+
+## 3) Regulatory & Legal
+- Goals:
+  - Secure required permits/approvals
+  - Complete inspections and certifications
+- KPIs:
+  - Permits approved vs pending
+  - Average approval turnaround time
+- Campaign ideas:
+  - “Municipal Approvals”
+  - “Fire & Safety Certification”
+- Tasks:
+  - Document compilation
+  - Application submission
+  - Follow-ups with authorities
+
+## 4) Vendor & Procurement
+- Goals:
+  - Source and procure materials/services on time and within budget
+- KPIs:
+  - RFQ responses and comparisons
+  - On-time delivery rate
+  - Cost variance vs estimate
+- Campaign ideas:
+  - “Materials Procurement – Phase 2”
+  - “Contractor Onboarding”
+- Tasks:
+  - RFQs and vendor shortlisting
+  - PO issuance
+  - Delivery inspections
+
+## 5) Operations Readiness
+- Goals:
+  - Prepare the facility for operational use post-construction
+- KPIs:
+  - Checklists completed
+  - Training sessions conducted
+- Campaign ideas:
+  - “Facility Readiness”
+  - “Handover & Training”
+- Tasks:
+  - SOP creation
+  - Staff/volunteer training
+  - Final cleaning and setup
+
+## 6) Educational & Programs Setup
+- Goals:
+  - Launch educational programs (Hifz, Maktab, classes)
+- KPIs:
+  - Programs launched
+  - Enrollments and attendance
+- Campaign ideas:
+  - “Evening Classes Setup”
+  - “Teacher Onboarding”
+- Tasks:
+  - Curriculum prep
+  - Classroom setup
+  - Enrollment drives
+
+## 7) IT & Digital Systems
+- Goals:
+  - Implement AV systems, Wi-Fi, CCTV, access control
+- KPIs:
+  - Uptime, coverage, installation completion
+- Campaign ideas:
+  - “CCTV & Security”
+  - “Wi-Fi & Network”
+- Tasks:
+  - Site survey
+  - Hardware install
+  - System testing
+
+## 8) HSE (Health, Safety, Environment)
+- Goals:
+  - Maintain safe site operations and environmental compliance
+- KPIs:
+  - Incident rate
+  - Safety audits passed
+- Campaign ideas:
+  - “Safety Training & Audits”
+  - “Waste & Environmental Compliance”
+- Tasks:
+  - Toolbox talks
+  - PPE checks
+  - Waste disposal coordination
+
+## 9) Community Services Enablement
+- Goals:
+  - Enable services like Iftar programs, Zakat distribution, health camps
+- KPIs:
+  - Beneficiaries served
+  - Volunteer hours
+- Campaign ideas:
+  - “Ramadan Readiness”
+  - “Health Camp at Masjid”
+- Tasks:
+  - Partner coordination
+  - Supplies procurement
+  - Scheduling and logistics
+
+## 10) Donor Relations & Stewardship
+- Goals:
+  - Retain and engage donors through updates, transparency, and gratitude
+- KPIs:
+  - Update frequency
+  - Donor retention/re-pledges
+- Campaign ideas:
+  - “Quarterly Project Updates”
+  - “Donor Appreciation Day”
+- Tasks:
+  - Progress report publishing
+  - Site tours for key donors
+  - Thank-you communications
+
+## 11) Governance & Audit
+- Goals:
+  - Ensure transparent project governance and financial audit trails
+- KPIs:
+  - Audit findings resolved
+  - Meeting minutes/logs maintained
+- Campaign ideas:
+  - “Internal Audit – Phase 2”
+  - “Governance Meetings”
+- Tasks:
+  - Policy reviews
+  - Audit scheduling
+  - Action tracking
+
+## 12) Sustainability & Green Initiatives
+- Goals:
+  - Implement energy-efficient and sustainable features
+- KPIs:
+  - Energy savings
+  - Water usage reduction
+- Campaign ideas:
+  - “Solar Installation”
+  - “Water Conservation”
+- Tasks:
+  - Vendor selection
+  - Installation and commissioning
+  - Monitoring setup
+
+***
+
+## How to model this in your app
+
+- Initiative fields:
+  - name, description, status, start/end dates
+  - goalType: enum/string (e.g., fundraising, construction, compliance, community_engagement, procurement, operations, education, it_systems, hse, services, stewardship, governance, sustainability)
+  - goalTargets: map to capture KPIs (e.g., targetMilestones, targetApprovals, targetVolunteers)
+- Campaign fields:
+  - initiativeRef, name, type (optional), KPIs/counters relevant to type
+- Task fields:
+  - Either campaignRef or initiativeRef (allow null for one, enforce at least one)
+  - type, priority, assignee, dueDate, status, checklist support
+
+Validation rules:
+- A task must link to either campaignRef or initiativeRef (not strictly both).
+- For fundraising campaigns, keep existing amount-based KPIs; for others, store counts/milestones.
+
+UI tweaks:
+- Initiative create form: choose Goal Type → dynamically show fields/KPIs relevant to that type.
+- Dashboard filters by goalType for quick visibility.
+
+Would a ready-to-drop list of goalType constants and an Initiative schema patch help? I can provide a compact patch card to extend your Initiative model, forms, and Firestore structure with goalType and goalTargets, plus a guard in Task create to enforce “at least one of campaignRef/initiativeRef.”

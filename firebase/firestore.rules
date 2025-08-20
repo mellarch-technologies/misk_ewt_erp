@@ -1,0 +1,98 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(roleId) {
+      return getUserData().roleId == roleId;
+    }
+
+    function isSuperAdmin() {
+      return getUserData().isSuperAdmin == true;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() &&
+                      (isSuperAdmin() || hasRole('admin'));
+      allow update: if isSignedIn() &&
+                      (isSuperAdmin() ||
+                       hasRole('admin') ||
+                       request.auth.uid == userId);
+      allow delete: if isSignedIn() && isSuperAdmin();
+    }
+
+    // Roles collection
+    match /roles/{roleId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isSuperAdmin();
+    }
+
+    // Initiatives collection
+    match /initiatives/{initiativeId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() &&
+                     (isSuperAdmin() ||
+                      hasRole('admin') ||
+                      hasRole('manager'));
+    }
+
+    // Campaigns collection
+    match /campaigns/{campaignId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() &&
+                     (isSuperAdmin() ||
+                      hasRole('admin') ||
+                      hasRole('manager'));
+    }
+
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() &&
+                      (isSuperAdmin() ||
+                       hasRole('admin') ||
+                       hasRole('manager') ||
+                       resource.data.assignedTo == request.auth.uid);
+      allow delete: if isSignedIn() &&
+                      (isSuperAdmin() || hasRole('admin'));
+    }
+
+    // Events & Announcements collection
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() &&
+                     (isSuperAdmin() ||
+                      hasRole('admin') ||
+                      hasRole('manager'));
+    }
+
+    // Donations collection
+    match /donations/{donationId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() &&
+                     (isSuperAdmin() ||
+                      hasRole('admin') ||
+                      hasRole('manager'));
+    }
+
+    // Rate limiting function
+    function isNotRateLimited() {
+      return request.time > resource.data.lastAccess + duration.value(1, 'm');
+    }
+
+    // Request logging (optional, for monitoring)
+    match /logs/{logId} {
+      allow create: if isSignedIn();
+    }
+  }
+}

@@ -1,174 +1,291 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/user_provider.dart';
-import '../../providers/permission_provider.dart';
-import '../../widgets/user_card.dart';
 import '../../theme/app_theme.dart';
-import 'user_form_screen.dart';
+import '../../models/user_model.dart';
+import '../../services/security_service.dart';
+import '../../widgets/snackbar_helper.dart';
+import '../../widgets/state_views.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
+
   @override
   State<UsersListScreen> createState() => _UsersListScreenState();
 }
 
 class _UsersListScreenState extends State<UsersListScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // -- CORRECT PROVIDER USAGE here:
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UserProvider>(context, listen: false).fetchUsers();
+      context.read<UserProvider>().fetchUsers();
     });
-    // Listen to search changes...
-    _searchController.addListener(() {
-      Provider.of<UserProvider>(context, listen: false).setFilter(_searchController.text);
-    });
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading users...'),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteUser(UserModel user) async {
+    // Require re-authentication before deleting a user
+    final ok = await const SecurityService().ensureReauthenticated(
+      context,
+      reason: 'Please confirm your identity to delete user "${user.name}".',
+    );
+    if (!ok) {
+      if (mounted) SnackbarHelper.showInfo(context, 'Action cancelled');
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete User'),
+        content: Text('Are you sure you want to delete ${user.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await context.read<UserProvider>().removeUser(user.uid);
+        if (mounted) {
+          SnackbarHelper.showSuccess(context, '${user.name} deleted successfully');
+        }
+      } catch (e) {
+        if (mounted) {
+          SnackbarHelper.showError(context, 'Error deleting user: $e');
+        }
+      }
+    }
+  }
+
+  Color _colorFromString(String s) {
+    final hash = s.codeUnits.fold<int>(0, (p, c) => p + c);
+    const colors = [
+      Colors.teal,
+      Colors.indigo,
+      Colors.deepPurple,
+      Colors.brown,
+      Colors.blueGrey,
+      Colors.orange,
+      Colors.pink,
+      Colors.cyan,
+      Colors.deepOrange,
+    ];
+    return colors[hash % colors.length];
+  }
+
+  Widget _buildUserCard(UserModel user) {
+    final avatarColor = _colorFromString(user.name);
+    final joined = user.createdAt != null ? 'Joined: ${user.createdAt!.toLocal().toString().split(' ').first}' : null;
+    final status = user.status;
+    final designation = (user.designation != null && user.designation!.isNotEmpty) ? user.designation : null;
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.pushNamed(context, '/users/form', arguments: user),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: avatarColor,
+                child: Text(user.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            user.name,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (val) {
+                            switch (val) {
+                              case 'edit':
+                                Navigator.pushNamed(context, '/users/form', arguments: user);
+                                break;
+                              case 'delete':
+                                _deleteUser(user);
+                                break;
+                            }
+                          },
+                          itemBuilder: (ctx) => const [
+                            PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(Icons.edit), title: Text('Edit'))),
+                            PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Delete'))),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(user.email, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        if (designation != null)
+                          Chip(
+                            label: Text(designation),
+                            backgroundColor: Colors.grey.shade200,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        if (status != null && status.isNotEmpty)
+                          Chip(
+                            label: Text(status),
+                            backgroundColor: status.toLowerCase().contains('active')
+                                ? Colors.green.shade100
+                                : Colors.orange.shade100,
+                            side: BorderSide(color: status.toLowerCase().contains('active') ? Colors.green : Colors.orange),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        if (joined != null)
+                          Chip(
+                            label: Text(joined),
+                            backgroundColor: Colors.blue.shade50,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserList(List<UserModel> users) {
+    return RefreshIndicator(
+      onRefresh: () => context.read<UserProvider>().fetchUsers(refresh: true),
+      child: ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index];
+          return _buildUserCard(user);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Users'),
+        backgroundColor: MiskTheme.miskDarkGreen,
+        foregroundColor: MiskTheme.miskWhite,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => Navigator.pushNamed(context, '/users/form'),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search users...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              onChanged: (value) =>
+                  context.read<UserProvider>().setFilter(value),
+            ),
+          ),
+          Expanded(
+            child: Consumer<UserProvider>(
+              builder: (context, provider, child) {
+                if (provider.hasError) {
+                  return ErrorState(
+                    title: 'Failed to load users',
+                    details: provider.errorMessage,
+                    onRetry: () => provider.fetchUsers(),
+                  );
+                }
+
+                if (provider.isBusy) {
+                  return _buildLoading();
+                }
+
+                final users = provider.users;
+                if (users.isEmpty) {
+                  return EmptyState(
+                    icon: Icons.people_outline,
+                    title: 'No users found',
+                    message: 'Try adjusting filters or add a new user.',
+                    action: ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, '/users/form'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add User'),
+                    ),
+                  );
+                }
+
+                return _buildUserList(users);
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, '/users/form'),
+        icon: const Icon(Icons.add),
+        label: const Text('Add User'),
+        backgroundColor: MiskTheme.miskGold,
+        foregroundColor: Colors.white,
+      ),
+    );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final userProvider = context.watch<UserProvider>();
-    final permissionProvider = context.watch<PermissionProvider>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Management'),
-        backgroundColor: MiskTheme.miskDarkGreen,
-        foregroundColor: MiskTheme.miskWhite,
-        elevation: 2,
-        actions: [
-          if (permissionProvider.can('can_manage_users'))
-            IconButton(
-              icon: const Icon(Icons.cloud_upload_outlined),
-              tooltip: 'Import Users',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Import feature coming soon!')),
-                );
-              },
-            ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70.0),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search users by name, email, role, etc.',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() => _searchController.clear()),
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Tooltip(
-                  message: 'Add New User',
-                  child: FloatingActionButton(
-                    mini: true,
-                    backgroundColor: MiskTheme.miskGold,
-                    foregroundColor: Colors.white,
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const UserFormScreen()),
-                    ),
-                    child: const Icon(Icons.person_add),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: userProvider.isBusy
-          ? const Center(child: CircularProgressIndicator(color: MiskTheme.miskGold))
-          : userProvider.users.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.people_alt_outlined, size: 80, color: Colors.grey.shade400),
-                      const SizedBox(height: 16),
-                      Text(
-                        _searchController.text.isEmpty ? 'No users found.' : 'No matching users.',
-                        style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: userProvider.users.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final user = userProvider.users[index];
-                    return UserCard(
-                      user: user,
-                      onEdit: permissionProvider.can('can_manage_users')
-                          ? () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => UserFormScreen(user: user)),
-                              );
-                              await Provider.of<UserProvider>(context, listen: false).fetchUsers();
-                            }
-                          : null,
-                      onDelete: permissionProvider.can('can_manage_users') && !user.isSuperAdmin
-                          ? () async {
-                              final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Delete User'),
-                                      content: Text('Are you sure you want to delete \\${user.name}? This action cannot be undone.'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                          child: const Text('Delete'),
-                                        ),
-                                      ],
-                                    ),
-                                  ) ??
-                                  false;
-                              if (confirmed) {
-                                await userProvider.removeUser(user.uid);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('\\${user.name} deleted.')),
-                                );
-                              }
-                            }
-                          : null,
-                    );
-                  },
-                ),
-    );
   }
 }

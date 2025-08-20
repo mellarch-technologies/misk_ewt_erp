@@ -1,0 +1,4 @@
+# Python requirements for Firestore automation scripts
+
+google-cloud-firestore>=2.0.0
+

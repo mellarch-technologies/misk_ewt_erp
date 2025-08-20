@@ -1,0 +1,134 @@
+A. Core Modules — Admin/ERP Side
+1. User Management
+User List with search, filter, sort
+
+Add/Edit/Delete User
+
+Role assignment (dropdown) & Firestore-based roles/permissions
+
+“Invite user” (creates Firebase Auth + sends invite/reset link)
+
+Disable edit/delete for Super Admin
+
+Bulk import (CSV/JSON) of users (MVP: basic, full batch processing later)
+
+User profile preview
+
+2. Role & Permission Management
+List all roles (Super Admin, Admin, Trustee, Staff, Member)
+
+Add/Edit/Delete roles
+
+Assign permissions to roles (UI: checkboxes for each permission)
+
+Role assignment to users
+
+[Optional for MVP] Prevent deletion of vital system roles
+
+3. Initiatives & Campaigns (Public-facing + Internal)
+Create/view/update Initiatives (e.g., projects, fundraising)
+
+Show summary stats (progress, goal)
+
+Assign responsible users
+
+Public page: list & detail (with donation/status info)
+
+4. Tasks/Workflow
+List/Create/Edit/Delete tasks (assign to users/roles/teams)
+
+Set due dates/status/progress tracking
+
+Personal “My Tasks” dashboard view
+
+Overdue/highlight indicators
+
+5. Events & Announcements
+Create events/announcements (for public or internal)
+
+Schedule, set attendees, attach docs or images
+
+Public event listing & registration (if required)
+
+Push/email notification triggers
+
+6. [Optional, Nice-to-have] Financial/Accounting (for MVP)
+Show income/expense summary
+
+Link to initiatives/campaigns
+
+Download basic CSV report
+
+B. System Infrastructure
+Authentication: Firebase Auth (email/password, optional: social auth for public app)
+
+Profile: Show/edit basic info, change password, request support
+
+Permission/role checks: Enforce permissions for every sensitive operation
+
+Logging & basic audit trail: Track key actions for admin
+
+C. Public App / Website Modules
+1. Home & Info
+Organization “About Us”
+
+Contact & support info (address, phone, email, contact form)
+
+FAQ page
+
+2. Initiatives/Campaigns Listing (Public)
+List all open campaigns
+
+Show total raised/progress/goal
+
+Public details page for each
+
+[Future: online donation, for now info-only or external link]
+
+3. Events/Announcement Feed
+Public event list (with details/RSVP if applicable)
+
+Announcements/news
+
+4. Public Registration & Login
+Sign Up (email/password, optional OTP/social), validation
+
+Login/logout
+
+Onboard, show their profile, see their events/tasks (if any)
+
+“Forgot password” flow
+
+5. User Dashboard (Public, basic)
+Welcome card with name & key info
+
+See assigned tasks/events (if relevant)
+
+Edit/view profile
+
+D. MVP Cross-cutting/Quality Features
+Responsive Design: Works great on phone, tablet, desktop, web
+
+Branding: Logo, colors, splash, custom error and empty states
+
+Loading status: Spinners and “nothing here yet” screens everywhere
+
+Validation: All forms robustly validate input on save
+
+Security: All sensitive endpoints protected by permission check (backend and frontend)
+
+🚦 How to Use This List
+Prioritize features that are bold or marked [MVP] for your first launch.
+
+Once you’re “in prod,” expand on others (financials, more custom reporting, feedback, image uploads, etc.).
+
+If you want, I can convert this to a spreadsheet or checklist format for your workflow.
+
+✅ Suggested Next Steps
+Review and confirm this list — add/remove items as per your vision.
+
+Lock the “definition of done” for each—MVP keeps every feature lean.
+
+Decide parallel tracks: (A) finish remaining ERP core, (B) kickstart and launch Public App with Home, Initiatives/Events, and Login/Registration.
+
+If you want sample navigation/main.dart or UI for the public app, just say so.

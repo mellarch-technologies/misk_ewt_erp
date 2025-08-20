@@ -1,0 +1,24 @@
+PS E:\MiSK\app\misk_ewt_erp> python scripts/check_firebase_status.py
+Connected to Firestore.
+
+Top-level Firestore collections:
+- initiatives
+    Doc ID: G3ND9e9Og0NeAxUYQ5R0 | Data: {'name': '', 'endDate': DatetimeWithNanoseconds(2025, 7, 18, 18, 30, 0, 385000, tzinfo=datetime.timezone.utc), 'createdAt': DatetimeWithNan
+oseconds(2025, 7, 18, 18, 30, 0, 122000, tzinfo=datetime.timezone.utc), 'description': '', 'status': '', 'startDate': DatetimeWithNanoseconds(2025, 7, 18, 18, 30, 0, 116000, tzinfo=datetime.timezone.utc), 'leadMemberId': <google.cloud.firestore_v1.document.DocumentReference object at 0x0000024A6DCC2EA0>}
+- members
+    Doc ID: NrBRnJdh78ALBkBU8tZY | Data: {'Qualification': 'BE, MBA', 'Designation': 'VP', 'CreatedAt': DatetimeWithNanoseconds(2025, 7, 18, 18, 30, 0, 196000, tzinfo=datetime.time
+zone.utc), 'Status': 'Active', 'Email': 'Muhammad.tanveerullah@gmail.com', 'Name': 'Muhammad Tanveerullah', 'Photo': '', 'Address': 'Periyarnagar, Chennai 600082', 'Occupation': 'IT Consultant', 'AllowPhotoUpload': False, 'Role': 'Admin', 'Phone': '9841725386', 'Gender': 'Male'}
+    Doc ID: SEQcaBUrPcVJHUQds3nc | Data: {'Qualification': 'd', 'Designation': 'd', 'Name': '', 'Role': 'Member', 'Email': 'd@a.com', 'Status': 'Active', 'Occupation': 'd', 'Address': 'dd', 'Phone': '5', 'Photo': '', 'CreatedAt': DatetimeWithNanoseconds(2025, 7, 21, 5, 53, 53, 822000, tzinfo=datetime.timezone.utc)}
+- permissions
+    Doc ID: can_edit_profile | Data: {'key': 'can_edit_profile'}
+    Doc ID: can_manage_events | Data: {'key': 'can_manage_events'}
+    Doc ID: can_manage_roles | Data: {'key': 'can_manage_roles'}
+- roles
+    Doc ID: 4Uub20poj5Vjvg3GzY4H | Data: {'name': 'Super Admin', 'permissions': {'can_manage_roles': True, 'can_view_finances': True, 'can_manage_events': True, 'can_manage_settings': True, 'can_view_all_modules': True, 'can_manage_users': True}}
+    Doc ID: BcTfIYyEDAwtHIl3vKWh | Data: {'name': 'Staff', 'permissions': {'can_manage_roles': True, 'can_view_finances': True, 'can_manage_events': True, 'can_manage_settings': True, 'can_view_all_modules': True, 'can_manage_users': True}}
+    Doc ID: M9FJM0pqMNTWN9BLKOl7 | Data: {'name': 'Trustee', 'permissions': {'can_view_finances': True, 'can_manage_events': True, 'can_manage_settings': True, 'can_view_all_modules': True, 'can_manage_roles': True}}
+- users
+    Doc ID: SvLQPD7A3GcOXRxmUu4P8pkaloy2 | Data: {'name': 'Muhammad Tanveerullah', 'email': 'muhammad.tanveerullah@gmail.com', 'roleId': <google.cloud.firestore_v1.document.DocumentReference object at 0x0000024A6DC37A40>, 'isSuperAdmin': True, 'allowPhotoUpload': False, 'createdAt': None}
+    Doc ID: ka5lWRoUgr8nH8DbNtww | Data: {'phone': '', 'address': '', 'email': 'admin@misk.org.in', 'allowPhotoUpload': False, 'createdAt': None, 'occupation': '', 'qualification': '', 'roleId': <google.cloud.firestore_v1.document.DocumentReference object at 0x0000024A6DD07B50>, 'photo': '', 'CreatedAt': DatetimeWithNanoseconds(2025, 7, 26, 13, 55, 48, 588000, tzinfo=datetime.timezone.utc), 'gender': '', 'designation': '', 'name': 'Super Admin', 'isSuperAdmin': True, 'status': ''}
+    Doc ID: yx2NLNZlBNWxsKzvwu6mdtASNGU2 | Data: {'name': 'Syed Azeez Ahmed', 'email': 'Syed.azeez.ahmed@gmail.com', 'roleId': <google.cloud.firestore_v1.document.DocumentReference object at 0x0000024A6DD07B50>, 'isSuperAdmin': False, 'allowPhotoUpload': False, 'createdAt': None}
+PS E:\MiSK\app\misk_ewt_erp>

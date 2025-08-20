@@ -1,0 +1,63 @@
+# Flutter & Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# Build outputs
+build/
+**/build/
+**/DerivedData/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+**/*.keystore
+**/*.jks
+
+# iOS / macOS
+ios/Pods/
+ios/.symlinks/
+macos/Flutter/ephemeral/
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+ios/Runner.xcodeproj/project.xcworkspace/
+
+# Windows / Linux
+windows/runner/Debug/
+linux/build/
+
+# Web (handled by .dart_tool and build rules)
+
+# App assets archives / temp
+lib.7z
+lib.zip
+
+# Backups & exports
+scripts/backup_*.json
+
+# Firebase service account & secrets (DO NOT COMMIT)
+# Keep client firebase_options.dart (safe) but ignore admin/service accounts
+misk-edu-and-welfare-trust-*.json
+*serviceAccount*.json
+*firebase-admin*.json
+firebase/*.private.json
+
+# Node / misc (if used later)
+node_modules/
+
+# Coverage
+coverage/
+
