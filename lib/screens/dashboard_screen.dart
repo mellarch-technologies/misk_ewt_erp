@@ -12,7 +12,8 @@ import '../services/task_service.dart';
 import '../services/event_announcement_service.dart';
 import '../widgets/snackbar_helper.dart';
 import '../widgets/kpi_card.dart';
-import 'donations/donations_entry_screen.dart';
+import '../widgets/welcome_banner.dart';
+import 'donations/donations_unified_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -54,12 +55,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return snap.size;
   }
 
+  Widget _fancyDivider() {
+    return Container(
+      height: 10,
+      alignment: Alignment.center,
+      child: Container(
+        height: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              MiskTheme.miskGold.withAlpha(0),
+              MiskTheme.miskGold,
+              MiskTheme.miskGold.withAlpha(0),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MISK ERP'),
-        // rely on theme colors to unify AppBar styling
+        actions: [
+          IconButton(
+            tooltip: 'Notifications',
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+          IconButton(
+            tooltip: 'Logout',
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
+              await authProvider.logout();
+              if (!mounted) return;
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -76,36 +114,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
+            _fancyDivider(),
             ListTile(
               leading: const Icon(Icons.dashboard),
               title: const Text('Dashboard'),
               onTap: () => Navigator.pushReplacementNamed(context, '/dashboard'),
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Users'),
               onTap: () => Navigator.pushNamed(context, '/users'),
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.security),
               title: const Text('Roles'),
               onTap: () => Navigator.pushNamed(context, '/roles'),
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.flag),
               title: const Text('Initiatives'),
               onTap: () => Navigator.pushNamed(context, '/initiatives'),
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.campaign),
               title: const Text('Campaigns'),
               onTap: () { Navigator.pushNamed(context, '/campaigns'); },
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.task),
               title: const Text('Tasks'),
               onTap: () { Navigator.pushNamed(context, '/tasks'); },
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.volunteer_activism),
               title: const Text('Donations'),
@@ -113,21 +158,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const DonationsEntryScreen()),
+                  MaterialPageRoute(builder: (_) => const DonationsUnifiedScreen()),
                 );
               },
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.event),
               title: const Text('Events & Announcements'),
               onTap: () { Navigator.pushNamed(context, '/events_announcements'); },
             ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () { Navigator.pushNamed(context, '/settings'); },
             ),
-            const Divider(),
+            _fancyDivider(),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
@@ -152,48 +199,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
           }
 
+          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          final auth = Provider.of<AppAuthProvider>(context, listen: false);
+          final perm = Provider.of<PermissionProvider>(context, listen: false);
+          final firebaseUser = auth.user;
+          final appUser = firebaseUser != null ? userProvider.getCurrentUserByEmail(firebaseUser.email) : null;
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Welcome to MISK ERP Mini', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        SizedBox(height: MiskTheme.spacingXSmall),
-                        Text('Use the navigation drawer to access different modules.'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: MiskTheme.spacingMedium),
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, _) {
-                    final user = Provider.of<AppAuthProvider>(context).user;
-                    final currentUser = user != null ? userProvider.getCurrentUserByEmail(user.email) : null;
-
-                    return Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Current User: ${currentUser?.name ?? 'Unknown'}', style: const TextStyle(fontSize: 18)),
-                            if (currentUser != null) ...[
-                              const SizedBox(height: MiskTheme.spacingXSmall),
-                              Text('Email: ${currentUser.email}'),
-                            ],
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                // Welcome banner replacing older plain cards
+                WelcomeBanner(
+                  userName: appUser?.name ?? 'User',
+                  roleName: perm.roleName,
+                  designation: appUser?.designation,
                 ),
                 const SizedBox(height: MiskTheme.spacingMedium),
                 // KPI cards

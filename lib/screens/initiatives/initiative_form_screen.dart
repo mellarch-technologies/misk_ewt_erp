@@ -4,6 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/initiative_model.dart';
 import '../../providers/initiative_provider.dart';
 import '../../services/initiative_service.dart';
+import '../../theme/app_theme.dart';
+// Upload helpers
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import '../../services/app_config.dart';
+import '../../services/photo_repository.dart';
+import '../../widgets/snackbar_helper.dart';
 
 class InitiativeFormScreen extends StatefulWidget {
   final Initiative? initiative;
@@ -38,6 +46,10 @@ class _InitiativeFormScreenState extends State<InitiativeFormScreen> {
   // Financial + milestones
   num? _goalAmount; // INR
   List<Map<String, dynamic>> _milestones = [];
+
+  // Upload flags
+  bool _uploadingCover = false;
+  bool _uploadingGallery = false;
 
   @override
   void initState() {
@@ -95,13 +107,43 @@ class _InitiativeFormScreenState extends State<InitiativeFormScreen> {
     });
   }
 
+  Future<String?> _pickAndUpload({required String directory, required String prefix, int minWidth = 1024, int minHeight = 576}) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return null;
+      final raw = await picked.readAsBytes();
+      final compressed = await FlutterImageCompress.compressWithList(
+        raw,
+        minWidth: minWidth,
+        minHeight: minHeight,
+        quality: 80,
+        format: CompressFormat.jpeg,
+      );
+      final repo = getPhotoRepository(AppConfig.photoStorage);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final url = await repo.upload(
+        Uint8List.fromList(compressed),
+        fileName: '${prefix}_$ts.jpg',
+        mimeType: 'image/jpeg',
+        directory: directory,
+      );
+      return url;
+    } catch (e) {
+      if (mounted) SnackbarHelper.showError(context, 'Upload failed: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final initiativeProvider = context.read<InitiativeProvider>();
+    final initiativeId = (widget.initiative?.id.isNotEmpty == true) ? widget.initiative!.id : null;
+    final baseDir = initiativeId != null ? 'initiatives/$initiativeId' : 'initiatives/pending/${DateTime.now().millisecondsSinceEpoch}';
     return Scaffold(
       appBar: AppBar(title: Text(widget.initiative == null ? 'Add Initiative' : 'Edit Initiative')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -233,39 +275,101 @@ class _InitiativeFormScreenState extends State<InitiativeFormScreen> {
               const Divider(height: 32),
               const Text('Media', style: TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              TextFormField(
-                initialValue: _coverImageUrl,
-                decoration: const InputDecoration(
-                  labelText: 'Banner URL (coverImageUrl)'
+              // Cover preview + actions
+              if ((_coverImageUrl ?? '').isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.network(_coverImageUrl!, height: 140, width: double.infinity, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox(height: 140, child: Center(child: Text('Unable to load cover')))),
                 ),
-                onSaved: (v) => _coverImageUrl = (v == null || v.isEmpty) ? null : v.trim(),
-              ),
-              const SizedBox(height: 8),
-              const Text('Gallery URLs'),
-              const SizedBox(height: 6),
-              ..._gallery.asMap().entries.map((e) => Row(
+                const SizedBox(height: 8),
+              ],
+              Row(
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: e.value,
-                      decoration: const InputDecoration(hintText: 'https://...'),
-                      onChanged: (v) => _gallery[e.key] = v.trim(),
+                  ElevatedButton.icon(
+                    onPressed: _uploadingCover
+                        ? null
+                        : () async {
+                            setState(() => _uploadingCover = true);
+                            final url = await _pickAndUpload(directory: '$baseDir/covers', prefix: 'initiative_cover');
+                            if (url != null) setState(() => _coverImageUrl = url);
+                            if (mounted) setState(() => _uploadingCover = false);
+                          },
+                    icon: _uploadingCover
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.upload),
+                    label: Text((_coverImageUrl ?? '').isEmpty ? 'Upload cover' : 'Change cover'),
+                  ),
+                  const SizedBox(width: 8),
+                  if ((_coverImageUrl ?? '').isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () => setState(() => _coverImageUrl = null),
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Clear'),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Remove',
-                    icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: () => setState(() => _gallery.removeAt(e.key)),
-                  ),
                 ],
-              )),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => setState(() => _gallery.add('')),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add URL'),
-                ),
+              ),
+              const SizedBox(height: 12),
+              const Text('Gallery'),
+              const SizedBox(height: 6),
+              if (_gallery.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _gallery.asMap().entries.map((e) {
+                    final idx = e.key;
+                    final url = e.value;
+                    return Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.network(url, width: 110, height: 110, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                    width: 110,
+                                    height: 110,
+                                    color: Colors.grey.shade200,
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.broken_image),
+                                  )),
+                        ),
+                        IconButton(
+                          tooltip: 'Remove',
+                          icon: const Icon(Icons.close, size: 18),
+                          color: Colors.black87,
+                          onPressed: () => setState(() => _gallery.removeAt(idx)),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                )
+              else
+                const Text('No images yet'),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _uploadingGallery
+                        ? null
+                        : () async {
+                            setState(() => _uploadingGallery = true);
+                            final url = await _pickAndUpload(directory: '$baseDir/gallery', prefix: 'initiative_gallery', minWidth: 800, minHeight: 800);
+                            if (url != null) setState(() => _gallery.add(url));
+                            if (mounted) setState(() => _uploadingGallery = false);
+                          },
+                    icon: _uploadingGallery
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.upload_file),
+                    label: const Text('Upload to gallery'),
+                  ),
+                  const SizedBox(width: 8),
+                  if (_gallery.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () => setState(() => _gallery.clear()),
+                      icon: const Icon(Icons.delete_sweep),
+                      label: const Text('Clear all'),
+                    ),
+                ],
               ),
 
               const Divider(height: 32),

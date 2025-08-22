@@ -6,6 +6,13 @@ import '../../providers/campaign_provider.dart';
 import '../../services/initiative_service.dart';
 import '../../models/initiative_model.dart';
 import '../../theme/app_theme.dart';
+// Upload helpers
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import '../../services/app_config.dart';
+import '../../services/photo_repository.dart';
+import '../../widgets/snackbar_helper.dart';
 
 class CampaignFormScreen extends StatefulWidget {
   final Campaign? campaign;
@@ -37,6 +44,10 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
 
   // Initiative selection
   String? _initiativeId;
+
+  // Uploading flags
+  bool _uploadingBanner = false;
+  bool _uploadingPoster = false;
 
   @override
   void initState() {
@@ -77,10 +88,40 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
     }
   }
 
+  Future<String?> _pickAndUpload({required String directory, required String prefix}) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return null;
+      final raw = await picked.readAsBytes();
+      final compressed = await FlutterImageCompress.compressWithList(
+        raw,
+        minWidth: 1024,
+        minHeight: 576,
+        quality: 80,
+        format: CompressFormat.jpeg,
+      );
+      final repo = getPhotoRepository(AppConfig.photoStorage);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final url = await repo.upload(
+        Uint8List.fromList(compressed),
+        fileName: '${prefix}_$ts.jpg',
+        mimeType: 'image/jpeg',
+        directory: directory,
+      );
+      return url;
+    } catch (e) {
+      if (mounted) SnackbarHelper.showError(context, 'Upload failed: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<CampaignProvider>(context);
     final initSvc = InitiativeService();
+    final campaignId = (widget.campaign?.id.isNotEmpty == true) ? widget.campaign!.id : null;
+    final baseDir = campaignId != null ? 'campaigns/$campaignId' : 'campaigns/pending/${DateTime.now().millisecondsSinceEpoch}';
     return Scaffold(
       appBar: AppBar(title: Text(widget.campaign == null ? 'Add Campaign' : 'Edit Campaign')),
       body: Padding(
@@ -171,16 +212,74 @@ class _CampaignFormScreenState extends State<CampaignFormScreen> {
               const Divider(height: MiskTheme.spacingLarge),
               const Text('Media', style: TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: MiskTheme.spacingXSmall),
-              TextFormField(
-                initialValue: _featureBannerUrl,
-                decoration: const InputDecoration(labelText: 'Feature Banner URL (wide image)'),
-                onSaved: (v) => _featureBannerUrl = (v == null || v.isEmpty) ? null : v.trim(),
+              // Feature Banner preview + actions
+              if ((_featureBannerUrl ?? '').isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.network(_featureBannerUrl!, height: 120, width: double.infinity, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox(height: 120, child: Center(child: Text('Unable to load banner')))),
+                ),
+                const SizedBox(height: 8),
+              ],
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _uploadingBanner
+                        ? null
+                        : () async {
+                            setState(() => _uploadingBanner = true);
+                            final url = await _pickAndUpload(directory: '$baseDir/posters', prefix: 'campaign_banner');
+                            if (url != null) setState(() => _featureBannerUrl = url);
+                            if (mounted) setState(() => _uploadingBanner = false);
+                          },
+                    icon: _uploadingBanner
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.upload),
+                    label: Text(_featureBannerUrl == null ? 'Upload banner' : 'Change banner'),
+                  ),
+                  const SizedBox(width: 8),
+                  if ((_featureBannerUrl ?? '').isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () => setState(() => _featureBannerUrl = null),
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Clear'),
+                    ),
+                ],
               ),
-              const SizedBox(height: MiskTheme.spacingXSmall),
-              TextFormField(
-                initialValue: _posterUrl,
-                decoration: const InputDecoration(labelText: 'Poster URL (single image)'),
-                onSaved: (v) => _posterUrl = (v == null || v.isEmpty) ? null : v.trim(),
+              const SizedBox(height: MiskTheme.spacingSmall),
+              // Poster preview + actions
+              if ((_posterUrl ?? '').isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.network(_posterUrl!, height: 160, width: double.infinity, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox(height: 160, child: Center(child: Text('Unable to load poster')))),
+                ),
+                const SizedBox(height: 8),
+              ],
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _uploadingPoster
+                        ? null
+                        : () async {
+                            setState(() => _uploadingPoster = true);
+                            final url = await _pickAndUpload(directory: '$baseDir/posters', prefix: 'campaign_poster');
+                            if (url != null) setState(() => _posterUrl = url);
+                            if (mounted) setState(() => _uploadingPoster = false);
+                          },
+                    icon: _uploadingPoster
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.upload_file),
+                    label: Text((_posterUrl ?? '').isEmpty ? 'Upload poster' : 'Change poster'),
+                  ),
+                  const SizedBox(width: 8),
+                  if ((_posterUrl ?? '').isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () => setState(() => _posterUrl = null),
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Clear'),
+                    ),
+                ],
               ),
               const Divider(height: MiskTheme.spacingLarge),
               const Text('Public App Controls', style: TextStyle(fontWeight: FontWeight.w700)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/campaign_model.dart';
 import '../donations/donations_list_screen.dart';
+import '../../theme/app_theme.dart';
 
 class CampaignDetailScreen extends StatelessWidget {
   final Campaign campaign;
@@ -12,7 +13,7 @@ class CampaignDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Campaign Details')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

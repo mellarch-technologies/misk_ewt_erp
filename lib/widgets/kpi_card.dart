@@ -10,6 +10,7 @@ class KpiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
     return Card(
       elevation: 2,
       child: Padding(
@@ -17,29 +18,33 @@ class KpiCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 20, color: color),
+            ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: const TextStyle(fontSize: 14)),
-                const SizedBox(height: 4),
+                Text(title, style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 2),
                 FutureBuilder<int>(
                   future: loadCount(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      );
+                      return const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2));
                     }
                     if (snapshot.hasError) {
-                      return const Text('-', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
+                      return Text('-', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color));
                     }
                     final count = snapshot.data ?? 0;
-                    return Text('$count', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
+                    return Text('$count', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color));
                   },
                 ),
               ],
@@ -50,4 +55,3 @@ class KpiCard extends StatelessWidget {
     );
   }
 }
-

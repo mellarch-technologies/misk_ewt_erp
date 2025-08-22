@@ -7,12 +7,17 @@ import 'package:http/http.dart' as http;
 import 'app_config.dart';
 
 abstract class PhotoRepository {
-  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg'});
+  Future<String> upload(
+    Uint8List bytes, {
+    required String fileName,
+    String mimeType = 'image/jpeg',
+    String? directory, // optional logical sub-folder, e.g., users/{uid}/photos
+  });
 }
 
 class _NoopPhotoRepository implements PhotoRepository {
   @override
-  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg'}) async {
+  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg', String? directory}) async {
     throw StateError('Photo upload backend not configured');
   }
 }
@@ -22,7 +27,7 @@ class SharedHostingPhotoRepository implements PhotoRepository {
   SharedHostingPhotoRepository(this.config);
 
   @override
-  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg'}) async {
+  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg', String? directory}) async {
     final url = config.endpointUrl;
     if (url == null || url.isEmpty) {
       throw StateError('Shared hosting endpointUrl is not set');
@@ -30,6 +35,7 @@ class SharedHostingPhotoRepository implements PhotoRepository {
     final req = http.MultipartRequest('POST', Uri.parse(url));
     req.fields.addAll({
       if (config.apiKey != null) 'apiKey': config.apiKey!,
+      if (directory != null && directory.trim().isNotEmpty) 'dir': directory.trim(),
     });
     req.files.add(http.MultipartFile.fromBytes('file', bytes, filename: fileName));
     final streamed = await req.send();
@@ -54,7 +60,7 @@ class GoogleDrivePhotoRepository implements PhotoRepository {
   GoogleDrivePhotoRepository(this.config);
 
   @override
-  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg'}) async {
+  Future<String> upload(Uint8List bytes, {required String fileName, String mimeType = 'image/jpeg', String? directory}) async {
     final url = config.endpointUrl;
     if (url == null || url.isEmpty) {
       throw StateError('Apps Script endpointUrl is not set');
@@ -63,6 +69,7 @@ class GoogleDrivePhotoRepository implements PhotoRepository {
     req.fields.addAll({
       if (config.apiKey != null) 'token': config.apiKey!,
       if (config.driveFolderId != null) 'folderId': config.driveFolderId!,
+      if (directory != null && directory.trim().isNotEmpty) 'dir': directory.trim(),
     });
     req.files.add(http.MultipartFile.fromBytes('file', bytes, filename: fileName));
     final streamed = await req.send();

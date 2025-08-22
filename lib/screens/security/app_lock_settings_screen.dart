@@ -5,6 +5,7 @@ import '../../providers/app_lock_provider.dart';
 import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'package:local_auth/local_auth.dart';
+import '../../theme/app_theme.dart';
 
 class AppLockSettingsScreen extends StatefulWidget {
   const AppLockSettingsScreen({super.key});
@@ -100,7 +101,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
         // rely on theme AppBar colors for consistency
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         children: [
           SwitchListTile(
             value: lock.enabled,
@@ -162,7 +163,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
               title: const Text('Enable Biometrics'),
               subtitle: const Text('Fingerprint/Face unlock (when supported)'),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MiskTheme.spacingSmall),
             ListTile(
               leading: const Icon(Icons.timer),
               title: const Text('Idle Timeout'),
@@ -200,19 +201,24 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
     ];
     return showModalBottomSheet<Duration>(
       context: context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const ListTile(title: Text('Select Idle Timeout')),
-          for (final d in options)
-            RadioListTile<Duration>(
-              value: d,
-              groupValue: current,
-              title: Text('${d.inMinutes} minutes'),
-              onChanged: (val) => Navigator.pop(ctx, val),
-            ),
-          const SizedBox(height: 8),
-        ],
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(MiskTheme.spacingMedium),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const ListTile(title: Text('Select Idle Timeout')),
+              const SizedBox(height: MiskTheme.spacingSmall),
+              ...options.map((d) => ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
+                    title: Text('${d.inMinutes} minutes'),
+                    trailing: current == d ? const Icon(Icons.check, color: Colors.green) : null,
+                    onTap: () => Navigator.pop(ctx, d),
+                  )),
+              const SizedBox(height: MiskTheme.spacingSmall),
+            ],
+          ),
+        ),
       ),
     );
   }

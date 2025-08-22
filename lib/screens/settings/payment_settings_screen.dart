@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/snackbar_helper.dart';
 import '../../services/payment_settings_service.dart';
+import '../../theme/app_theme.dart';
 
 class PaymentSettingsScreen extends StatefulWidget {
   const PaymentSettingsScreen({super.key});
@@ -154,7 +155,7 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
       body: _busy
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(MiskTheme.spacingMedium),
               child: Form(
                 key: _formKey,
                 child: ListView(

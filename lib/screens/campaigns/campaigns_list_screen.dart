@@ -7,6 +7,10 @@ import 'campaign_form_screen.dart';
 import '../donations/donations_list_screen.dart';
 import '../../widgets/back_or_home_button.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/filter_bar.dart';
+import '../../widgets/common_card.dart';
+import '../../widgets/misk_badge.dart';
+import '../../widgets/search_input.dart';
 
 class CampaignsListScreen extends StatefulWidget {
   const CampaignsListScreen({super.key});
@@ -28,38 +32,48 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
 
   Widget _buildLoading() => const SkeletonList();
 
-  Widget _buildFilters(CampaignProvider provider) {
+  Widget _buildFilterBar(CampaignProvider provider) {
     final cats = <String>{}
       ..addAll(provider.campaigns.map((e) => e.category).whereType<String>().where((c) => c.isNotEmpty));
     if (cats.isEmpty) cats.addAll(['online', 'offline']);
 
-    return Column(
+    return FilterBar(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: cats.map((c) {
-              final selected = provider.categoryFilters.contains(c);
-              return FilterChip(
-                label: Text(c),
-                selected: selected,
-                onSelected: (_) => provider.toggleCategory(c),
-              );
-            }).toList(),
+        SizedBox(
+          width: 320,
+          child: SearchInput(
+            controller: _searchController,
+            hintText: 'Search campaigns...',
+            onChanged: (v) => provider.setFilter(v),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(width: MiskTheme.spacingSmall),
+        ...cats.map((c) {
+          final selected = provider.categoryFilters.contains(c);
+          return FilterChip(
+            label: Text(c),
+            selected: selected,
+            onSelected: (_) => provider.toggleCategory(c),
+          );
+        }),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Switch(
-              value: provider.publicOnly,
-              onChanged: provider.setPublicOnly,
-            ),
-            const SizedBox(width: 8),
+            Switch(value: provider.publicOnly, onChanged: provider.setPublicOnly),
             const Text('Public only'),
           ],
+        ),
+        TextButton.icon(
+          onPressed: () {
+            _searchController.clear();
+            provider.setFilter('');
+            for (final c in List<String>.from(provider.categoryFilters)) {
+              provider.toggleCategory(c);
+            }
+            if (provider.publicOnly) provider.setPublicOnly(false);
+          },
+          icon: const Icon(Icons.clear_all),
+          label: const Text('Clear'),
         ),
       ],
     );
@@ -81,23 +95,8 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
               MiskTheme.spacingMedium,
               MiskTheme.spacingSmall,
             ),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search campaigns...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-              ),
-              onChanged: (v) => context.read<CampaignProvider>().setFilter(v),
-            ),
+            child: Consumer<CampaignProvider>(builder: (_, p, __) => _buildFilterBar(p)),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
-            child: Consumer<CampaignProvider>(
-              builder: (_, p, __) => _buildFilters(p),
-            ),
-          ),
-          const SizedBox(height: MiskTheme.spacingSmall),
           Expanded(
             child: Consumer<CampaignProvider>(
               builder: (context, provider, _) {
@@ -121,58 +120,17 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
 
                 return RefreshIndicator(
                   onRefresh: provider.fetchCampaigns,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: MiskTheme.spacingMedium,
+                      vertical: MiskTheme.spacingSmall,
+                    ),
+                    separatorBuilder: (_, __) => const SizedBox(height: MiskTheme.spacingSmall),
                     itemCount: items.length,
                     itemBuilder: (ctx, i) {
                       final c = items[i];
                       final initName = provider.initiativeNameFor(c.initiative);
-                      return ListTile(
-                        title: Text(c.name),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if ((c.description ?? '').isNotEmpty)
-                              Text(c.description!, maxLines: 2, overflow: TextOverflow.ellipsis),
-                            const SizedBox(height: 6),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: [
-                                if ((c.category ?? '').isNotEmpty)
-                                  Chip(label: Text(c.category!), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                                if (c.publicVisible)
-                                  const Chip(label: Text('Public'), visualDensity: VisualDensity.compact),
-                                if (c.featured)
-                                  Chip(label: const Text('Featured'), visualDensity: VisualDensity.compact, side: BorderSide(color: Colors.amber.shade300)),
-                                if (c.initiative != null)
-                                  Chip(
-                                    label: Text(initName == null || initName.isEmpty ? 'Initiative' : initName),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        trailing: IconButton(
-                          tooltip: 'View Donations',
-                          icon: const Icon(Icons.receipt_long),
-                          onPressed: () {
-                            final initRef = c.initiative;
-                            if (initRef == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Link this campaign to an initiative to view donations.')),
-                              );
-                              return;
-                            }
-                            final campRef = FirebaseFirestore.instance.collection('campaigns').doc(c.id);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => DonationsListScreen(initiativeRef: initRef, campaignRef: campRef),
-                              ),
-                            );
-                          },
-                        ),
+                      return CommonCard(
                         onTap: () async {
                           final changed = await Navigator.push(
                             context,
@@ -180,6 +138,64 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
                           );
                           if (changed == true) await provider.fetchCampaigns();
                         },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    c.name,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'View Donations',
+                                  icon: const Icon(Icons.receipt_long),
+                                  onPressed: () {
+                                    final initRef = c.initiative;
+                                    if (initRef == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Link this campaign to an initiative to view donations.')),
+                                      );
+                                      return;
+                                    }
+                                    final campRef = FirebaseFirestore.instance.collection('campaigns').doc(c.id);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => DonationsListScreen(initiativeRef: initRef, campaignRef: campRef),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            if ((c.description ?? '').isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(c.description!, maxLines: 2, overflow: TextOverflow.ellipsis),
+                            ],
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                if ((c.category ?? '').isNotEmpty)
+                                  MiskBadge(label: c.category!),
+                                if (c.publicVisible)
+                                  const MiskBadge(label: 'Public', type: MiskBadgeType.info, icon: Icons.public),
+                                if (c.featured)
+                                  const MiskBadge(label: 'Featured', type: MiskBadgeType.warning, icon: Icons.star),
+                                if (c.initiative != null)
+                                  MiskBadge(
+                                    label: (initName == null || initName.isEmpty) ? 'Initiative' : initName,
+                                    icon: Icons.rocket_launch,
+                                    type: MiskBadgeType.neutral,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

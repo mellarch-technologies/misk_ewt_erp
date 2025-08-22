@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/event_announcement_model.dart';
 import '../../models/initiative_model.dart';
+import '../../theme/app_theme.dart';
 
 class EventAnnouncementDetailScreen extends StatelessWidget {
   final EventAnnouncement event;
@@ -11,7 +12,7 @@ class EventAnnouncementDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Event/Announcement Details')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,7 +38,7 @@ class InitiativeDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Initiative Details')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

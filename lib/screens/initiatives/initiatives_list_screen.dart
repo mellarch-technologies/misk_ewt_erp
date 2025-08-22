@@ -7,6 +7,8 @@ import '../../widgets/initiative_card.dart';
 import 'initiative_detail_screen.dart';
 import '../../widgets/back_or_home_button.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/filter_bar.dart';
+import '../../widgets/search_input.dart';
 
 class InitiativesListScreen extends StatefulWidget {
   const InitiativesListScreen({super.key});
@@ -39,27 +41,18 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
       cats.addAll(['infrastructure', 'education', 'health', 'community', 'relief', 'other']);
     }
 
-    return Column(
+    return FilterBar(
       children: [
-        // Category chips
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: cats.map((c) {
-              final selected = provider.categoryFilters.contains(c);
-              return FilterChip(
-                label: Text(c),
-                selected: selected,
-                onSelected: (_) => provider.toggleCategory(c),
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Public-only toggle
+        ...cats.map((c) {
+          final selected = provider.categoryFilters.contains(c);
+          return FilterChip(
+            label: Text(c),
+            selected: selected,
+            onSelected: (_) => provider.toggleCategory(c),
+          );
+        }),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Switch(
               value: provider.publicOnly,
@@ -68,6 +61,18 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
             const SizedBox(width: 8),
             const Text('Public only'),
           ],
+        ),
+        TextButton.icon(
+          onPressed: () {
+            provider.setFilter('');
+            for (final c in List<String>.from(provider.categoryFilters)) {
+              provider.toggleCategory(c);
+            }
+            if (provider.publicOnly) provider.setPublicOnly(false);
+            _searchController.clear();
+          },
+          icon: const Icon(Icons.clear_all),
+          label: const Text('Clear'),
         ),
       ],
     );
@@ -86,13 +91,9 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
               MiskTheme.spacingMedium,
               MiskTheme.spacingSmall,
             ),
-            child: TextField(
+            child: SearchInput(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search initiatives...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-              ),
+              hintText: 'Search initiatives...',
               onChanged: (v) => context.read<InitiativeProvider>().setFilter(v),
             ),
           ),

@@ -8,6 +8,10 @@ import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'task_form_screen.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common_card.dart';
+import '../../widgets/misk_badge.dart';
+import '../../widgets/filter_bar.dart';
+import '../../widgets/search_input.dart';
 
 class TasksListScreen extends StatefulWidget {
   const TasksListScreen({super.key});
@@ -48,6 +52,15 @@ class _TasksListScreenState extends State<TasksListScreen> {
     if (sel != null) setState(() => _status = sel);
   }
 
+  MiskBadgeType _statusBadgeType(String s) {
+    final v = s.toLowerCase();
+    if (v.contains('done') || v.contains('completed')) return MiskBadgeType.success;
+    if (v.contains('progress') || v.contains('doing')) return MiskBadgeType.info;
+    if (v.contains('block') || v.contains('hold')) return MiskBadgeType.danger;
+    if (v.contains('pending') || v.contains('todo')) return MiskBadgeType.warning;
+    return MiskBadgeType.neutral;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AppAuthProvider>();
@@ -61,27 +74,24 @@ class _TasksListScreenState extends State<TasksListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-            child: TextField(
+            child: SearchInput(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search tasks...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-              ),
+              hintText: 'Search tasks...',
               onChanged: (v) => context.read<TaskProvider>().setFilter(v),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingXSmall),
             child: Consumer<TaskProvider>(
               builder: (_, p, __) {
                 // derive statuses from current list
                 final set = <String>{'All'};
                 set.addAll(p.tasks.map((t) => t.status).where((e) => e.isNotEmpty));
                 final statuses = set.toList();
-                return Row(
+                return FilterBar(
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: 260,
                       child: TextButton(
                         onPressed: () => _pickStatus(statuses),
                         child: Row(
@@ -99,19 +109,33 @@ class _TasksListScreenState extends State<TasksListScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: MiskTheme.spacingSmall),
-                    const Text('My tasks'),
-                    const SizedBox(width: MiskTheme.spacingXSmall),
-                    Switch(
-                      value: _myTasksOnly,
-                      onChanged: (v) => setState(() => _myTasksOnly = v),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('My tasks'),
+                        const SizedBox(width: MiskTheme.spacingXSmall),
+                        Switch(
+                          value: _myTasksOnly,
+                          onChanged: (v) => setState(() => _myTasksOnly = v),
+                        ),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _status = 'All';
+                          _myTasksOnly = false;
+                        });
+                      },
+                      icon: const Icon(Icons.clear_all),
+                      label: const Text('Clear'),
                     ),
                   ],
                 );
               },
             ),
           ),
-          const SizedBox(height: MiskTheme.spacingSmall),
+          const SizedBox(height: MiskTheme.spacingXSmall),
           Expanded(
             child: Consumer<TaskProvider>(
               builder: (context, provider, _) {
@@ -148,55 +172,83 @@ class _TasksListScreenState extends State<TasksListScreen> {
 
                 return RefreshIndicator(
                   onRefresh: provider.fetchTasks,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingSmall),
                     itemCount: items.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: MiskTheme.spacingSmall),
                     itemBuilder: (ctx, i) {
                       final t = items[i];
-                      return ListTile(
-                        title: Text(t.title),
-                        subtitle: Column(
+                      final statusBadge = MiskBadge(label: t.status.isEmpty ? 'Status' : t.status, type: _statusBadgeType(t.status), icon: Icons.flag);
+                      final campaignBadge = t.campaign != null
+                          ? const MiskBadge(label: 'Campaign', type: MiskBadgeType.info, icon: Icons.campaign)
+                          : null;
+                      final initiativeBadge = t.initiative != null
+                          ? const MiskBadge(label: 'Initiative', type: MiskBadgeType.neutral, icon: Icons.emoji_objects)
+                          : null;
+
+                      return CommonCard(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if ((t.description ?? '').isNotEmpty) Text(t.description!),
-                            const SizedBox(height: 6),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    t.title,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () async {
+                                    final ok = await const SecurityService().ensureReauthenticated(
+                                      context,
+                                      reason: 'Delete this task?',
+                                    );
+                                    if (!ok) return;
+                                    try {
+                                      await provider.deleteTask(t.id);
+                                      if (mounted) SnackbarHelper.showSuccess(context, 'Task deleted');
+                                    } catch (e) {
+                                      if (mounted) SnackbarHelper.showError(context, 'Failed: $e');
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                            if ((t.description ?? '').isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(t.description!),
+                            ],
+                            const SizedBox(height: 8),
                             Wrap(
                               spacing: 6,
                               runSpacing: 6,
                               children: [
-                                Chip(label: Text(t.status)),
-                                if (t.campaign != null)
-                                  const Chip(label: Text('Campaign'), visualDensity: VisualDensity.compact),
-                                if (t.initiative != null)
-                                  const Chip(label: Text('Initiative'), visualDensity: VisualDensity.compact),
+                                statusBadge,
+                                if (campaignBadge != null) campaignBadge,
+                                if (initiativeBadge != null) initiativeBadge,
                               ],
                             ),
+                            const SizedBox(height: 4),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () async {
+                                  final changed = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => TaskFormScreen(task: t)),
+                                  );
+                                  if (changed == true && mounted) {
+                                    await provider.fetchTasks();
+                                  }
+                                },
+                                child: const Text('Edit'),
+                              ),
+                            ),
                           ],
-                        ),
-                        onTap: () async {
-                          final changed = await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => TaskFormScreen(task: t)),
-                          );
-                          if (changed == true && mounted) {
-                            await provider.fetchTasks();
-                          }
-                        },
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () async {
-                            final ok = await const SecurityService().ensureReauthenticated(
-                              context,
-                              reason: 'Delete this task?',
-                            );
-                            if (!ok) return;
-                            try {
-                              await provider.deleteTask(t.id);
-                              if (mounted) SnackbarHelper.showSuccess(context, 'Task deleted');
-                            } catch (e) {
-                              if (mounted) SnackbarHelper.showError(context, 'Failed: $e');
-                            }
-                          },
                         ),
                       );
                     },

@@ -7,6 +7,10 @@ import '../../models/user_model.dart';
 import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import '../../widgets/state_views.dart';
+import '../../widgets/common_card.dart';
+import '../../widgets/misk_badge.dart';
+import '../../widgets/search_input.dart';
+import '../../widgets/filter_bar.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
@@ -91,96 +95,87 @@ class _UsersListScreenState extends State<UsersListScreen> {
     return colors[hash % colors.length];
   }
 
+  MiskBadgeType _statusType(String? status) {
+    final v = (status ?? '').toLowerCase();
+    if (v.contains('active')) return MiskBadgeType.success;
+    if (v.contains('suspend') || v.contains('inactive')) return MiskBadgeType.warning;
+    if (v.contains('blocked')) return MiskBadgeType.danger;
+    return MiskBadgeType.neutral;
+  }
+
   Widget _buildUserCard(UserModel user) {
     final avatarColor = _colorFromString(user.name);
     final joined = user.createdAt != null ? 'Joined: ${user.createdAt!.toLocal().toString().split(' ').first}' : null;
     final status = user.status;
     final designation = (user.designation != null && user.designation!.isNotEmpty) ? user.designation : null;
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingSmall),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    final String? photoUrl = (user.photo != null && user.photo!.startsWith('http')) ? user.photo : null;
+
+    return CommonCard(
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.pushNamed(context, '/users/form', arguments: user),
-        child: Padding(
-          padding: const EdgeInsets.all(MiskTheme.spacingSmall),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: avatarColor,
-                child: Text(user.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(width: MiskTheme.spacingSmall),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            user.name,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: avatarColor,
+              backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+              child: photoUrl == null
+                  ? Text(user.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+                  : null,
+            ),
+            const SizedBox(width: MiskTheme.spacingSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          user.name,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        PopupMenuButton<String>(
-                          onSelected: (val) {
-                            switch (val) {
-                              case 'edit':
-                                Navigator.pushNamed(context, '/users/form', arguments: user);
-                                break;
-                              case 'delete':
-                                _deleteUser(user);
-                                break;
-                            }
-                          },
-                          itemBuilder: (ctx) => const [
-                            PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(Icons.edit), title: Text('Edit'))),
-                            PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Delete'))),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: MiskTheme.spacingXSmall),
-                    Text(user.email, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: MiskTheme.spacingSmall),
-                    Wrap(
-                      spacing: MiskTheme.spacingSmall,
-                      runSpacing: MiskTheme.spacingSmall,
-                      children: [
-                        if (designation != null)
-                          Chip(
-                            label: Text(designation),
-                            backgroundColor: Colors.grey.shade200,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        if (status != null && status.isNotEmpty)
-                          Chip(
-                            label: Text(status),
-                            backgroundColor: status.toLowerCase().contains('active')
-                                ? Colors.green.shade100
-                                : Colors.orange.shade100,
-                            side: BorderSide(color: status.toLowerCase().contains('active') ? Colors.green : Colors.orange),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        if (joined != null)
-                          Chip(
-                            label: Text(joined),
-                            backgroundColor: Colors.blue.shade50,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (val) {
+                          switch (val) {
+                            case 'edit':
+                              Navigator.pushNamed(context, '/users/form', arguments: user);
+                              break;
+                            case 'delete':
+                              _deleteUser(user);
+                              break;
+                          }
+                        },
+                        itemBuilder: (ctx) => const [
+                          PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(Icons.edit), title: Text('Edit'))),
+                          PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete, color: Colors.red), title: Text('Delete'))),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: MiskTheme.spacingXSmall),
+                  Text(user.email, style: TextStyle(color: Colors.grey[700]), overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: MiskTheme.spacingSmall),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (designation != null)
+                        MiskBadge(label: designation, type: MiskBadgeType.info, icon: Icons.badge_outlined),
+                      if (status != null && status.isNotEmpty)
+                        MiskBadge(label: status, type: _statusType(status), icon: Icons.verified_user_outlined),
+                      if (joined != null)
+                        MiskBadge(label: joined, type: MiskBadgeType.neutral, icon: Icons.calendar_today_outlined),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -189,8 +184,10 @@ class _UsersListScreenState extends State<UsersListScreen> {
   Widget _buildUserList(List<UserModel> users) {
     return RefreshIndicator(
       onRefresh: () => context.read<UserProvider>().fetchUsers(refresh: true),
-      child: ListView.builder(
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingSmall),
         itemCount: users.length,
+        separatorBuilder: (_, __) => const SizedBox(height: MiskTheme.spacingSmall),
         itemBuilder: (context, index) {
           final user = users[index];
           return _buildUserCard(user);
@@ -215,16 +212,16 @@ class _UsersListScreenState extends State<UsersListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search users...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+            child: FilterBar(
+              children: [
+                Expanded(
+                  child: SearchInput(
+                    controller: _searchController,
+                    hintText: 'Search users...',
+                    onChanged: (value) => context.read<UserProvider>().setFilter(value),
+                  ),
                 ),
-              ),
-              onChanged: (value) => context.read<UserProvider>().setFilter(value),
+              ],
             ),
           ),
           Expanded(

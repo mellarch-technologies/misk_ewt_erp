@@ -4,6 +4,7 @@ import '../../models/initiative_model.dart';
 import '../../services/currency_helper.dart';
 import '../donations/donations_list_screen.dart';
 import '../../services/rollup_service.dart' as roll;
+import '../../theme/app_theme.dart';
 
 class InitiativeDetailScreen extends StatelessWidget {
   final Initiative initiative;
@@ -68,7 +69,7 @@ class InitiativeDetailScreen extends StatelessWidget {
               await roll.RollupService().recomputeInitiativeFinancial(ref);
               // Fetch latest snapshot and pop-push to refresh UI
               final snap = await ref.get();
-              final data = snap.data() as Map<String, dynamic>?;
+              final Map<String, dynamic>? data = snap.data();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Recomputed financial totals.')),
@@ -104,7 +105,7 @@ class InitiativeDetailScreen extends StatelessWidget {
                     ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(MiskTheme.spacingMedium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -659,23 +659,92 @@ Notes
 Next
 - Tokenized spacing/radii/shadows across common cards/forms.
 - Migrate App Lock timeout picker to RadioGroup to silence deprecations.
-## [2025-08-20] Resume Checklist Completion
-- Tasks: Form polish + full CRUD wiring confirmed. Delete uses SecurityService.ensureReauthenticated (PIN/password).
-- Donations: Bulk reconcile UI added ("Mark filtered reconciled"), quick actions (confirm, toggle bank reconciled, edit bank ref) hooked to DonationService.quickUpdate with roll-up recompute.
-- Campaigns: Form includes optional fields (start/end dates, estimatedCost, proposedBy, media URLs) and initiative link; provider/service CRUD verified.
-- QA: Payment Settings E2E present (PaymentSettingsScreen + PaymentSettingsService load/save + basic validation); Global roll-up recompute action available in GlobalSettings.
-- Build fix: Resolved DropdownButtonFormField compile error in tasks_list_screen.dart by using `value:` instead of `initialValue:` and revalidating; static analyzer now clean on touched files.
+## [2025-08-20] Phase 1 UI/UX — Timeout Picker Refactor + Spacing Tokens
+- Security/App Lock: replaced deprecated RadioListTile idle-timeout picker with a checkmark list (no deprecations), kept re-auth flows.
+- Spacing tokens: standardized padding to MiskTheme.spacingMedium across Task Form/Detail, Payment Settings, Initiative Form/Detail, Event Form/Detail, Campaign Detail.
+- Roles: RolesListScreen uses shared ErrorState; RoleProvider exposes error state (retry wired).
+- Static analyzer: PASS on all modified files; minor lint (unnecessary cast) cleaned in InitiativeDetail.
+- Next: radii/shadows token pass on cards/forms and remaining AppBar/header unification; Payment Settings E2E manual QA.
+## [2025-08-20] Phase 1 UI/UX — Shared Components + Campaigns Refactor
+- Added shared UI building blocks:
+  - CommonCard (standardized card with theme spacing/radii)
+  - MiskBadge (status/category badges with brand-aware colors)
+  - FilterBar (responsive filter container for chips/fields/switches)
+- Theme: added ChipTheme and replaced deprecated APIs (Color.withValues, removed background/onBackground from ColorScheme).
+- Refactor: CampaignsListScreen now uses FilterBar + CommonCard + MiskBadge for consistent visuals and responsive filters.
+- Cleanup: fixed deprecations in badge backgrounds/borders (withValues).
+- Analyzer: PASS on new widgets and refactored screens.
 
-Next Small Polishes
-- Apply shared state views to any remaining screens if missed (e.g., Roles).
-- Token pass for spacing/radii/shadows on common cards/forms.
-- Migrate deprecated RadioListTile usage in App Lock timeout to new RadioGroup when convenient.
+Next (UI polish rollout)
+- Apply CommonCard/MiskBadge/FilterBar to Donations, Tasks, Users, Events & Announcements lists.
+- Token pass for card radii/shadows on any outliers and finalize header/AppBar unification.
+- QA: verify responsive filters on narrow widths and badge contrast in all themes.
 
-## [2025-08-20] UX Nav — Back/Home Leading on Tab Roots
-- Added BackOrHomeButton and wired it into Initiatives, Campaigns, Donations, and Settings AppBars.
-- Behavior: shows back arrow when a route can pop; shows Home icon at tab root to jump to Dashboard.
-- AppShell now exposes a global key for programmatic tab switching; AuthWrapper mounts AppShell with this key.
-- Static analyzer: PASS on all modified files.
+## [2025-08-20] Dashboard UI — Welcome Banner, KPI Polish, AppBar Actions
+- Compared v0.9/v1.0 dashboards and adopted best patterns in current app.
+- Added WelcomeBanner (greeting + role/designation pills) to top of Dashboard.
+- Polished KPI cards: stronger number typography, icon accent container, compact spacing.
+- AppBar refined with notifications and logout actions; Drawer retained.
+- Theme: added subtle Card border for crisper visuals across modules.
+- Analyzer: PASS on updated widgets and dashboard screen.
 
-Next Phase Kickoff
-- Begin Phase 1 polish: apply theme tokens (spacing/radii/typography) consistently across core list/forms. Batch 1 will target Users, Initiatives, and Campaigns.
+## [2025-08-20] Phase 1 UI/UX — Pattern Rollout (Donations/Tasks/Users/Events)
+
+- Applied shared UI components across list screens for consistency and responsiveness:
+  - CommonCard for item containers, MiskBadge for status/type chips, and FilterBar for filters.
+  - Screens updated: DonationsListScreen, TasksListScreen, UsersListScreen, EventsAnnouncementsListScreen.
+- Donations: resolved DropdownButtonFormField deprecation by switching to initialValue and adding stable keys.
+- Preserved business actions and flows:
+  - Donations: bulk reconcile, quick confirm, toggle bank reconciled, edit bank ref; roll-ups remain hooked.
+  - Tasks: delete with re-auth, edit flow intact; “My tasks” and status filters responsive.
+  - Users: delete with re-auth, add/edit navigation; cards now use badges for designation/status/joined.
+  - Events/Announcements: public/featured/type/date/initiative rendered via badges; delete with re-auth + edit flow intact.
+- Spacing/rhythm aligned to MiskTheme tokens on these screens; shared skeleton/empty/error states already wired.
+- Analyzer: PASS on modified files; no remaining deprecations in the updated areas.
+
+Next
+- Complete token pass (radii/shadows) and any remaining AppBar/header unification on outlier screens.
+- Manual QA: Payment Settings end-to-end and Donations reconciliation flow.
+- Optional: port Roles list to CommonCard/MiskBadge if needed for full visual parity.
+
+## [2025-08-21] Shared Hosting Uploads — Live Config, Key Rotation, Action List
+
+Context and kickoff points
+- File uploads were planned on 2025-08-16 (Photo Upload Strategy — No Firebase Storage) and UI wiring landed on 2025-08-16 (UI + Repo stubs). On 2025-08-21, the user provided a live shared-hosting endpoint and a secret key (not stored in repo) and requested end-to-end wiring.
+
+What’s configured now
+- App reads upload backend via dart-define: PHOTO_BACKEND, SHARED_ENDPOINT_URL, SHARED_API_KEY.
+- PhotoRepository posts multipart with apiKey and dir; UserForm uploads to users/{uid}/photos (fallback to users/pending/{ts}/photos before uid exists).
+- Docs added: docs/integrations/SHARED_UPLOADS_SETUP.md and a secure server sample at docs/integrations/server/upload.php.
+
+Shipping without hardcoding
+- Build-time injection (Play Store): use flutter build appbundle/apk with --dart-define as documented. Treat values as configuration, not secrets.
+- Server mitigations in place: size/type validation, random filenames, safe dirs; recommend .htaccess to disable script execution in uploads/.
+
+Key rotation policy
+- Current approach uses compile-time dart-define ⇒ rotate by: (1) update server to accept both old+new keys during rollout, (2) build and release a new app with the new key, (3) after adoption, retire the old key on server.
+- For zero-rebuild rotations later, plan upgrade to short-lived HMAC-signed tokens minted by a small server function (optional future).
+
+Action checklist (uploads)
+- [Done] Wire dart-define config and client upload dir structure.
+- [Done] Provide secure PHP endpoint + setup guide.
+- [Next] Add upload buttons to Campaign/Initiative/Event forms (use module dirs: campaigns/{id}/posters, initiatives/{id}/covers, events/{id}/posters).
+- [Next] Settings: add a simple “Uploads status” tile with test ping and backend info.
+- [Next] Optional hardening: HMAC(ts, filename) and CI-based secret injection for release builds.
+
+## [2025-08-21] Phase 1 UI/UX — Unified Filter/Search + Public App Scaffold
+
+What
+- Unified filter/search UI:
+  - Added shared SearchInput widget and replaced inline search TextFields on Users, Tasks, Initiatives, Campaigns, and Events & Announcements screens.
+  - Ensured all these list screens use FilterBar for consistent top-row filters.
+- Public App scaffold:
+  - Added lib/public_main.dart and lib/public_app/screens/donate_home_screen.dart (Donate home with three methods: Bank Transfer, UPI, Razorpay). No business logic wired yet.
+
+Validation
+- Analyzer: PASS on updated list screens and SearchInput; public_main.dart import resolution will be verified with a full `flutter run -t lib/public_main.dart` build (the Donate screen file exists in lib/public_app/screens).
+
+Next
+- Donations list: optionally add SearchInput (by donor name/ref) to match other lists.
+- Settings/UI polish: apply CommonCard/spacing tokens to Payment/Global/Security screens.
+- Public App: implement Bank Transfer and UPI flows (instructions + receipt form), then Razorpay.

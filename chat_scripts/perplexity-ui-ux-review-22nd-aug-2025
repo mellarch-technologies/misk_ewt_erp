@@ -1,0 +1,436 @@
+
+UX/UI Review + Ready-to-paste GitHub Copilot Prompts
+Below is a concise analysis for each new screen, followed by actionable Copilot prompts you can paste into your IDE. I’ve focused on clarity, consistency, accessibility, and admin efficiency.
+
+Initiative Detail (Masjid Project Phase 2 — Construction)
+Observations
+
+Top tags (Public, Featured) and status chips are good; header still tall—push more content above the fold.
+
+Three progress bars (Financial Confirmed, Reconciled, Execution) work, but labels and units are not instantly scannable.
+
+“View Donations” primary button feels subordinate in the visual hierarchy.
+
+Milestones list lacks state affordances (done/blocked/in-progress), and progress bars sit far from labels.
+
+Recommendations
+
+Reduce header height; lock title to a two-line max with ellipsis.
+
+Convert progress bars into a compact “Metrics” block with consistent pattern:
+
+Label on the left, percentage on the right, sublabel under bar with exact figures and units.
+
+Use consistent color semantics: finance confirmed (gold), reconciled (green), execution (blue).
+
+Elevate “View Donations” to a sticky bottom primary CTA when scrolled; otherwise place near Finance section.
+
+Milestones:
+
+Add status chips and a left-aligned state icon (check/clock/stop).
+
+Allow quick toggle for completion and optional percentage for partial tasks.
+
+Group milestones by phase with collapsible sections.
+
+Copilot prompt (paste in the relevant UI component file)
+/*
+Refactor InitiativeDetail screen:
+
+Collapse top header height by 24dp; title maxLines=2 with ellipsis.
+
+Create MetricsRow component with props:
+{label, percent, valueText, colorToken}
+Layout:
+Row: label (start), percent (end, bold)
+ProgressBar 8dp height, rounded
+Caption: valueText (e.g., "₹2.7 Lakh / ₹2 Cr - Confirmed")
+
+Instantiate MetricsRow for:
+
+Financial Confirmed (gold-500)
+
+Reconciled in Bank (green-500)
+
+Execution (blue-500)
+
+Convert "View Donations" to sticky bottom CTA (appears when user scrollY > first fold). Otherwise render inline right after Finance section.
+
+Milestones:
+
+Create MilestoneItem {title, status: 'done'|'in_progress'|'blocked', percent?}
+
+Prepend left icon per status (check, clock, stop) with semantic colors.
+
+Optional secondary progress bar if percent present.
+
+Wrap in CollapsibleSection by phase.
+
+Add accessibility labels and ensure tap targets ≥ 44dp.
+*/
+
+Campaigns List
+Observations
+
+Filters are helpful; “Public only” toggle is clear.
+
+Cards are readable but a bit tall; repeated tags consume space.
+
+FAB overlaps last card on small screens.
+
+Recommendations
+
+Add compact density mode: tighten vertical spacing; collapse description to one line with “More” expansion.
+
+Make tags consistent and ordered (visibility, featured, linked initiative).
+
+Move frequent action (edit) to a trailing icon; keep 3-dot menu for less common actions.
+
+Use a sticky filter bar with a clear “Reset” action visible inline.
+
+Raise FAB by safe inset or use a bottom sheet “Add campaign” with creation shortcuts.
+
+Copilot prompt
+/*
+Update CampaignsList:
+
+Implement CompactCard variant with:
+
+Title (single line, ellipsis), Description (max 1 line, expandable)
+
+Tag order: [online/offline], [Public], [Featured], [Initiative link]
+
+Trailing icon button: Edit; overflow menu for Archive/Delete/Duplicate
+
+Create StickyFilters container: when scrollY > 16dp, pin search + filter chips; show "Reset" text button inline.
+
+Increase bottom padding of list to 96dp to avoid FAB overlap. Add WindowInsets handling.
+
+Add motion: card press -> lift/elevation + ripple.
+*/
+
+Edit Campaign
+Observations
+
+Form fields are complete; vertical rhythm is uneven.
+
+Date pickers are separate “Pick Start/End” affordances; “No end date” text could be a checkbox.
+
+Media section has two buttons with different sizes; hierarchy unclear.
+
+“Visible on Public App” toggle is great but should be at top with other visibility controls.
+
+Recommendations
+
+Group fields: Basics (name, description, category, linked initiative), Schedule (start, end with “No end date” checkbox), Ownership (proposed by), Budget (estimated cost), Media, Visibility.
+
+Use helper text for cost formats; add currency prefix and thousand separators.
+
+Standardize media actions into a two-tile grid with equal prominence; show current assets thumbnails and file size.
+
+Place “Visible on Public App” at top of the form summary section.
+
+Add sticky Save/Cancel bar.
+
+Copilot prompt
+/*
+Refactor EditCampaign form:
+
+Introduce FormSection components: Basics, Schedule, Ownership, Budget, Media, Visibility.
+
+Schedule:
+
+DateRangePicker with "No end date" checkbox (disables end field).
+
+Budget:
+
+TextField with currencyPrefix="₹", thousandSeparator, numeric keyboard, validation (>=0).
+
+Media:
+
+Two equal-width outlined buttons in a grid: Upload Banner, Upload Poster.
+
+Show previews if assets exist; allow replace/remove.
+
+Visibility:
+
+Move "Visible on Public App" toggle here; mirror value at top summary line under the title.
+
+Add StickyActionBar with Cancel and Save primary.
+
+Run form validation on blur and before submit; show inline error text.
+*/
+
+Your Tasks
+Observations
+
+Cards read well; status and type chips are consistent.
+
+Trash icon is destructive and prominent; “Edit” link as text is low contrast.
+
+No quick status change; everything is multi-tap.
+
+Recommendations
+
+Add swipe actions: left to complete, right to edit; provide undo snackbar.
+
+Convert trash icon to overflow menu to reduce accidental deletes.
+
+Surface due dates if available; sort by status and due soon.
+
+Toggle “My tasks” should persist state per user.
+
+Compact layout option to show more tasks on screen.
+
+Copilot prompt
+/*
+Enhance TasksList:
+
+Implement SwipeActions:
+
+Swipe right: Edit
+
+Swipe left: Mark complete (with Undo snackbar)
+
+Replace inline trash icon with overflow menu {Complete, Edit, Delete}
+
+Add DueDate chip (if exists) and sort options: {Due soon, Status, Recently updated}
+
+Persist filter states (status, "My tasks") to local storage per user.
+
+Add Density toggle (Comfortable/Compact) via AppBar menu.
+*/
+
+Cross-cutting Improvements
+Consistent chip style: same height, font size, left icon optional, colors mapped to semantic tokens.
+
+Type scale and 8dp spacing grid applied uniformly.
+
+Increase contrast for yellow buttons and ensure WCAG AA.
+
+Ensure all icons have content descriptions; support dynamic type scaling.
+
+Copilot prompt (shared constants + components)
+/*
+Create a UI Design System:
+
+Spacing: 4/8/16/24/32 dp scale; export as tokens.
+
+Typography:
+
+Title=18/600, Subtitle=16/600, Body=14/400, Caption=12/400.
+
+Chips:
+
+height=28dp, padding=12dp horizontal, radius=16dp
+
+Variants: neutral, success, warning, info
+
+Colors (semantic):
+
+primaryGreen=#2E5E37, accentGold=#F2B538, infoBlue=#3F6FE0, successGreen=#2FB36E, dangerRed=#D64545, neutralGray=#ECEEF2
+
+ProgressBar: 8dp height, radius=6dp; show percent text at row end.
+
+StickyActionBar and StickyFilters shared components with WindowInsets handling.
+*/
+
+If helpful, I can also draft sample Figma specs or translate these prompts to Flutter/React Native/Jetpack Compose code patterns. Send the next images or let me know your tech stack details to tailor the prompts further.
+
+UX/UI Review + Ready-to-paste Copilot Prompts (New Screens)
+Below are focused recommendations for the two new screens—Donations and Global Settings—plus copy-ready prompts to implement improvements quickly.
+
+Donations (List + Filters)
+Observations
+
+Strong filter set (initiative, campaign, search, method, status, unreconciled toggle).
+
+The “Mark filtered reconciled” CTA is contextually smart but can be risky without clear scope.
+
+Tag clutter within cards makes scan-ability slower; hierarchy between payer, amount, method, and status can be sharper.
+
+Unreconciled toggle lacks immediate feedback about result counts.
+
+The list risks FAB/controls overlap at the bottom on smaller screens.
+
+Recommendations
+
+Filters
+
+Convert to a collapsible Sticky Filter Bar that pins when scrolling; always show the count of results and active filters.
+
+Show active-filter chips beneath the search field with a one-tap “Clear all.”
+
+On “Unreconciled” toggle, update the CTA text to reflect scope dynamically: “Mark 12 shown as reconciled.”
+
+Bulk actions
+
+Add confirmation modal summarizing scope: “Apply to: 12 visible items - Method: All - Status: All.” Offer Undo via snackbar.
+
+Disable the CTA when 0 results.
+
+Cards
+
+Information hierarchy:
+
+Line 1: Donor name (bold) - Amount (bold, right-aligned)
+
+Line 2: Date/time - Reference ID
+
+Line 3: Tags in consistent order: Initiative, Campaign, Method, Status
+
+Color semantics: confirmed = green, unreconciled = orange, failed/refunded = red.
+
+Add quick actions: reconcile/unreconcile toggle and edit via trailing icon buttons. Keep overflow for delete/refund/receipt.
+
+Reconciliation guardrails
+
+If “confirmed=false & reconciled=true” is invalid, block and show an inline reason.
+
+Record who reconciled and when; show a tiny audit chip on the card.
+
+Copilot prompt (paste into Donations screen module)
+/*
+Enhance Donations screen:
+
+Sticky Filters:
+
+Wrap filters in <StickyFilters> that pins when scrollY > 8dp.
+
+Under search, render ActiveFilterChips for initiative, campaign, method, status, unreconciled.
+
+Show "Clear all" text button when any filter is active.
+
+Compute and display resultCount (e.g., "27 results") on the right of the filter bar.
+
+Bulk Reconcile CTA:
+
+Change label to "Mark {resultCount} shown reconciled".
+
+Disable when resultCount===0.
+
+On press: show ConfirmDialog summarizing scope (initiative/campaign/method/status/unreconciled).
+
+After confirm: call reconcileDonations(idsOfVisibleItems) and show Snackbar "Marked {n} reconciled" with Undo; Undo reverts via API.
+
+Prevent reconcile when donation.confirmed===false; show inline toast "Cannot reconcile unconfirmed donations".
+
+DonationCard refactor:
+
+Layout:
+
+Row 1: donorName (TitleMedium, max 1 line) - amount (TitleMedium, right)
+
+Row 2: dateTime - referenceId
+
+Row 3: chips in order: Initiative, Campaign, Method, Status
+
+Right-side quick actions: IconButton "Reconcile/Unreconcile" + IconButton "Edit"; Overflow menu: {View, Receipt, Delete}
+
+Apply semantic colors: confirmed=successGreen, unreconciled=warningGold, failed=dangerRed.
+
+Add small "Reconciled by {user} - {date}" caption if present.
+
+Increase list bottom padding to 96dp; handle WindowInsets so bottom nav doesn’t overlap content.
+
+Performance:
+
+Add pagination/infinite scroll with skeleton placeholders for cards.
+
+Preserve filters and scroll position in viewModel/navigation state.
+*/
+
+Global Settings
+Observations
+
+Clear section names; concise helper text is good.
+
+Visual hierarchy could separate “configuration” vs “dangerous/system” actions more clearly.
+
+“Uploads backend” and “Recompute roll-ups” are operational; they should show current status and last-run metadata.
+
+No confirmation for roll-ups; no visibility on environment or health checks.
+
+Recommendations
+
+Grouping
+
+Create distinct sections: Access & Security, Payments, Storage & Uploads, Maintenance.
+
+Use dividers and section headers for quick scanning.
+
+Operational feedback
+
+For Uploads backend, show environment badge (Test/Prod), last ping status, and a “Run health check” inline action with result toast.
+
+For Recompute roll-ups, show last run time, duration, and who triggered it. Add confirmation and progress indicator.
+
+Safety
+
+Require confirmation with typed keyword for destructive/irreversible operations if any.
+
+Discoverability
+
+Add a search box at the top of Settings to jump to items.
+
+Accessibility
+
+Ensure each row has a large tap target and clear right-chevron affordance for navigable items only.
+
+Copilot prompt (paste into Settings screen module)
+/*
+Refactor GlobalSettings:
+
+Structure:
+
+Split into Section components with headers:
+
+Access & Security: {Roles & Permissions, Security & App Lock}
+
+Payments: {Payment Providers / Bank Details}
+
+Storage & Uploads: {Uploads backend}
+
+Maintenance: {Recompute roll-ups}
+
+Only show trailing chevron for navigable items; for operational tiles, use action buttons instead.
+
+Uploads backend tile:
+
+Show environmentBadge = "Test"|"Prod", connectionStatus = "OK"|"Degraded"|"Down".
+
+Add "Health check" button:
+
+Ping endpoint; display latency and status.
+
+Save lastCheckedAt and lastStatus in local store; show "Last checked: 2m ago".
+
+Recompute roll-ups tile:
+
+Show "Last run: {timestamp} - Duration: {ms} - By: {user}" if available.
+
+Replace single-line row with primary button "Run roll-ups" and a caption.
+
+On click: ConfirmDialog with summary + "Run".
+
+During run: show ProgressIndicator and disable the button.
+
+On success: Toast "Roll-ups complete" with stats updated.
+
+On failure: Error banner with retry.
+
+General:
+
+Add top Search field to filter settings items by keyword.
+
+Ensure 8dp grid spacing, WCAG AA contrast, and touch targets ≥ 44dp.
+*/
+
+Shared polish across these screens
+Chips: unify height (28dp), icon spacing, and color tokens; ensure they wrap gracefully on narrow widths.
+
+Numbers: format currency with locale, separators, and consistent symbol placement (e.g., ₹2,50,000). Provide raw value in accessibility label.
+
+Undo-first pattern: for quick, reversible actions use optimistic updates with undo, then reconcile if server rejects.
+
+If desired, I can tailor the prompts for your framework (Flutter, React Native, Jetpack Compose). Share your stack and I’ll translate these into concrete component code stubs.

@@ -9,6 +9,7 @@ import '../../services/initiative_service.dart';
 import '../../models/initiative_model.dart';
 import '../../services/campaign_service.dart';
 import '../../models/campaign_model.dart';
+import '../../theme/app_theme.dart';
 
 class TaskFormScreen extends StatefulWidget {
   final Task? task;
@@ -67,7 +68,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.task == null ? 'Add Task' : 'Edit Task')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Form(
           key: _formKey,
           child: Column(
@@ -79,7 +80,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 onSaved: (v) => _title = v ?? '',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               TextFormField(
                 initialValue: _description,
                 decoration: const InputDecoration(labelText: 'Description'),
@@ -87,7 +88,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 maxLines: 4,
                 onSaved: (v) => _description = v,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               DropdownButtonFormField<String>(
                 initialValue: _status,
                 items: const ['pending', 'in_progress', 'completed']
@@ -96,7 +97,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 onChanged: (v) => setState(() => _status = v ?? 'pending'),
                 decoration: const InputDecoration(labelText: 'Status'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: MiskTheme.spacingSmall),
               Row(
                 children: [
                   Expanded(
@@ -113,7 +114,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
               const Divider(height: 32),
               const Text('Links & Assignment', style: TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingSmall),
               FutureBuilder<List<UserModel>>(
                 future: userSvc.getUsersOnce(),
                 builder: (ctx, snap) {
@@ -128,7 +129,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingSmall),
               FutureBuilder<List<Initiative>>(
                 future: initSvc.getInitiativesOnce(),
                 builder: (ctx, snap) {
@@ -147,7 +148,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MiskTheme.spacingSmall),
               FutureBuilder<List<Campaign>>(
                 future: campSvc.getCampaignsOnce(),
                 builder: (ctx, snap) {

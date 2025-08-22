@@ -19,8 +19,34 @@ class PhotoStorageConfig {
 
 /// Central app config. In production, consider wiring via flavors or dart-define.
 class AppConfig {
-  static PhotoStorageConfig photoStorage = const PhotoStorageConfig(
-    backend: PhotoBackend.none,
-  );
-}
+  static PhotoStorageConfig photoStorage = _loadPhotoStorageFromEnv();
 
+  static PhotoStorageConfig _loadPhotoStorageFromEnv() {
+    const backendStr = String.fromEnvironment('PHOTO_BACKEND', defaultValue: 'none');
+    const endpoint = String.fromEnvironment('SHARED_ENDPOINT_URL');
+    const apiKey = String.fromEnvironment('SHARED_API_KEY');
+    const folderId = String.fromEnvironment('DRIVE_FOLDER_ID');
+
+    PhotoBackend backend;
+    switch (backendStr.toLowerCase()) {
+      case 'sharedhosting':
+      case 'shared_hosting':
+      case 'shared':
+        backend = PhotoBackend.sharedHosting;
+        break;
+      case 'googledrive':
+      case 'drive':
+        backend = PhotoBackend.googleDrive;
+        break;
+      default:
+        backend = PhotoBackend.none;
+    }
+
+    return PhotoStorageConfig(
+      backend: backend,
+      endpointUrl: endpoint.isEmpty ? null : endpoint,
+      apiKey: apiKey.isEmpty ? null : apiKey,
+      driveFolderId: folderId.isEmpty ? null : folderId,
+    );
+  }
+}

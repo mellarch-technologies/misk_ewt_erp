@@ -60,13 +60,12 @@ class MiskTheme {
         secondary: miskDarkGreen,
         tertiary: miskLightGreen,
         surface: miskWhite,
-        background: miskCream,
+        // background and onBackground deprecated; rely on surface/onSurface + scaffoldBackgroundColor
         error: miskErrorRed,
         brightness: Brightness.light,
         onPrimary: miskWhite,
         onSecondary: miskWhite,
         onSurface: miskTextDark,
-        onBackground: miskTextDark,
       ),
       scaffoldBackgroundColor: miskCream,
       // Typography - Using Google Fonts instead of custom font
@@ -114,7 +113,7 @@ class MiskTheme {
         bodySmall: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.normal,
-          color: miskTextDark.withOpacity(0.7),
+          color: miskTextDark.withValues(alpha: 0.7),
         ),
         labelLarge: GoogleFonts.poppins(
           fontSize: 16,
@@ -152,6 +151,7 @@ class MiskTheme {
           borderRadius: BorderRadius.all(
             Radius.circular(borderRadiusLarge),
           ),
+          side: BorderSide(color: Color(0xFFE6E6E6)),
         ),
         margin: EdgeInsets.all(spacingSmall),
       ),
@@ -257,7 +257,7 @@ class MiskTheme {
           fontWeight: FontWeight.normal,
         ),
         hintStyle: GoogleFonts.poppins(
-          color: miskTextDark.withOpacity(0.6),
+          color: miskTextDark.withValues(alpha: 0.6),
           fontSize: 14,
         ),
         prefixIconColor: miskDarkGreen,
@@ -279,6 +279,25 @@ class MiskTheme {
         contentTextStyle: GoogleFonts.poppins(color: miskWhite),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(borderRadiusMedium)),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        labelStyle: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: miskTextDark,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 4,
+        ),
+        side: const BorderSide(color: Color(0xFFE0E0E0)),
+        selectedColor: miskGold.withValues(alpha: 0.15),
+        backgroundColor: miskWhite,
+        shape: const StadiumBorder(),
+        iconTheme: const IconThemeData(
+          size: 16,
+          color: miskDarkGreen,
         ),
       ),
     );

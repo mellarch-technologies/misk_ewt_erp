@@ -5,6 +5,14 @@ import '../../models/event_announcement_model.dart';
 import '../../providers/event_announcement_provider.dart';
 import '../../services/initiative_service.dart';
 import '../../models/initiative_model.dart';
+import '../../theme/app_theme.dart';
+// Upload helpers
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import '../../services/app_config.dart';
+import '../../services/photo_repository.dart';
+import '../../widgets/snackbar_helper.dart';
 
 class EventAnnouncementFormScreen extends StatefulWidget {
   final EventAnnouncement? event;
@@ -25,6 +33,8 @@ class _EventAnnouncementFormScreenState extends State<EventAnnouncementFormScree
   String? _initiativeId;
   // Posters (URLs)
   List<String> _posterUrls = [];
+  // Upload flag
+  bool _uploadingPoster = false;
 
   @override
   void initState() {
@@ -62,14 +72,44 @@ class _EventAnnouncementFormScreenState extends State<EventAnnouncementFormScree
     setState(() => _eventDate = dt);
   }
 
+  Future<String?> _pickAndUpload({required String directory, required String prefix}) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return null;
+      final raw = await picked.readAsBytes();
+      final compressed = await FlutterImageCompress.compressWithList(
+        raw,
+        minWidth: 1024,
+        minHeight: 576,
+        quality: 80,
+        format: CompressFormat.jpeg,
+      );
+      final repo = getPhotoRepository(AppConfig.photoStorage);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final url = await repo.upload(
+        Uint8List.fromList(compressed),
+        fileName: '${prefix}_$ts.jpg',
+        mimeType: 'image/jpeg',
+        directory: directory,
+      );
+      return url;
+    } catch (e) {
+      if (mounted) SnackbarHelper.showError(context, 'Upload failed: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<EventAnnouncementProvider>(context);
     final initSvc = InitiativeService();
+    final eventId = (widget.event?.id.isNotEmpty == true) ? widget.event!.id : null;
+    final baseDir = eventId != null ? 'events/$eventId' : 'events/pending/${DateTime.now().millisecondsSinceEpoch}';
     return Scaffold(
       appBar: AppBar(title: Text(widget.event == null ? 'Add Event/Announcement' : 'Edit Event/Announcement')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Form(
           key: _formKey,
           child: Column(
@@ -142,31 +182,66 @@ class _EventAnnouncementFormScreenState extends State<EventAnnouncementFormScree
                 onChanged: (v) => setState(() => _featured = v),
               ),
               const Divider(height: 32),
-              const Text('Posters (URLs)', style: TextStyle(fontWeight: FontWeight.w700)),
+              const Text('Posters', style: TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              ..._posterUrls.asMap().entries.map((e) => Row(
+              if (_posterUrls.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _posterUrls.asMap().entries.map((e) {
+                    final idx = e.key;
+                    final url = e.value;
+                    return Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.network(url, width: 120, height: 160, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                    width: 120,
+                                    height: 160,
+                                    color: Colors.grey.shade200,
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.broken_image),
+                                  )),
+                        ),
+                        IconButton(
+                          tooltip: 'Remove',
+                          icon: const Icon(Icons.close, size: 18),
+                          color: Colors.black87,
+                          onPressed: () => setState(() => _posterUrls.removeAt(idx)),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                )
+              else
+                const Text('No posters yet'),
+              const SizedBox(height: 8),
+              Row(
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: e.value,
-                      decoration: const InputDecoration(hintText: 'https://...'),
-                      onChanged: (v) => _posterUrls[e.key] = v.trim(),
+                  OutlinedButton.icon(
+                    onPressed: _uploadingPoster
+                        ? null
+                        : () async {
+                            setState(() => _uploadingPoster = true);
+                            final url = await _pickAndUpload(directory: '$baseDir/posters', prefix: 'event_poster');
+                            if (url != null) setState(() => _posterUrls.add(url));
+                            if (mounted) setState(() => _uploadingPoster = false);
+                          },
+                    icon: _uploadingPoster
+                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.upload_file),
+                    label: const Text('Upload poster'),
+                  ),
+                  const SizedBox(width: 8),
+                  if (_posterUrls.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () => setState(() => _posterUrls.clear()),
+                      icon: const Icon(Icons.delete_sweep),
+                      label: const Text('Clear all'),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Remove',
-                    icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: () => setState(() => _posterUrls.removeAt(e.key)),
-                  ),
                 ],
-              )),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => setState(() => _posterUrls.add('')),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add URL'),
-                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

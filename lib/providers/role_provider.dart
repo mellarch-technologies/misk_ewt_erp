@@ -7,35 +7,77 @@ class RoleProvider extends ChangeNotifier {
   final RoleService _service = RoleService();
   List<Role> _roles = [];
   bool _isLoading = false;
+  String? _error;
 
   List<Role> get roles => _roles;
   bool get isLoading => _isLoading;
+  String? get error => _error;
 
   RoleProvider() {
     fetchRoles();
     _service.streamRoles().listen((roles) {
       _roles = roles;
+      _error = null; // clear any previous load error on live updates
+      notifyListeners();
+    }, onError: (e) {
+      _error = e.toString();
       notifyListeners();
     });
   }
 
   Future<void> fetchRoles() async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
-    _roles = await _service.fetchRoles();
-    _isLoading = false;
+    try {
+      _roles = await _service.fetchRoles();
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 
   Future<void> addRole(Role role, {required String currentUserId}) async {
-    await _service.addRole(role, currentUserId: currentUserId);
+    try {
+      await _service.addRole(role, currentUserId: currentUserId);
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<void> updateRole(Role role, {required String currentUserId}) async {
-    await _service.updateRole(role, currentUserId: currentUserId);
+    try {
+      await _service.updateRole(role, currentUserId: currentUserId);
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<void> deleteRole(String id) async {
-    await _service.deleteRole(id);
+    try {
+      await _service.deleteRole(id);
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
   }
 }

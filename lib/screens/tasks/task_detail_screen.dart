@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/task_model.dart';
+import '../../theme/app_theme.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
@@ -10,7 +11,7 @@ class TaskDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Task Details')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(MiskTheme.spacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -28,4 +29,3 @@ class TaskDetailScreen extends StatelessWidget {
     );
   }
 }
-

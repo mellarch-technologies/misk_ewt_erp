@@ -422,12 +422,38 @@ class _UserFormScreenState extends State<UserFormScreen> {
         format: CompressFormat.jpeg,
       );
       final repo = getPhotoRepository(AppConfig.photoStorage);
+      final nowTs = DateTime.now().millisecondsSinceEpoch;
+      final userFolder = (_currentUser?.uid != null && _currentUser!.uid.isNotEmpty)
+          ? 'users/${_currentUser!.uid}/photos'
+          : 'users/pending/$nowTs/photos';
       final url = await repo.upload(
         compressed,
-        fileName: 'user_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        fileName: 'user_${nowTs}.jpg',
         mimeType: 'image/jpeg',
+        directory: userFolder,
       );
       setState(() => _photo = url);
+      // Persist immediately for existing users so avatar doesn't disappear when navigating back
+      if ((_currentUser?.uid ?? '').isNotEmpty) {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_currentUser!.uid)
+              .update({'photo': url, 'updatedAt': FieldValue.serverTimestamp()});
+          if (mounted) {
+            // Best-effort refresh so Users list reflects the change without reopening
+            try {
+              // ignore: use_build_context_synchronously
+              await context.read<UserProvider>().fetchUsers(refresh: true);
+            } catch (_) {}
+          }
+        } catch (e) {
+          // Non-fatal: photo already uploaded; Firestore patch failed
+          if (mounted) {
+            SnackbarHelper.showError(context, 'Saved photo locally, but failed to persist: $e');
+          }
+        }
+      }
       if (mounted) SnackbarHelper.showSuccess(context, 'Photo uploaded');
     } catch (e) {
       if (mounted) SnackbarHelper.showError(context, 'Upload failed: $e');
