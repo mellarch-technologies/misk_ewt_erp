@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:meta/meta.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/role_model.dart';
 import '../models/user_model.dart';
 
@@ -54,6 +55,36 @@ class PermissionProvider extends ChangeNotifier {
     } catch (e) {
       await logToFile("Error loading user permissions from reference: $e");
       _userRole = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // New: Load permissions by user email (query Firestore users once)
+  Future<void> loadForEmail(String? email) async {
+    if (email == null || email.isEmpty) {
+      clearPermissions();
+      return;
+    }
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final qs = await FirebaseFirestore.instance.collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      if (qs.docs.isEmpty) {
+        clearPermissions();
+        return;
+      }
+      final doc = qs.docs.first;
+      final user = UserModel.fromJson(doc.data(), doc.id);
+      await loadUserPermissions(user);
+    } catch (e) {
+      // On failure, keep safe default (no permissions)
+      _userRole = null;
+      _isSuperAdmin = false;
     } finally {
       _isLoading = false;
       notifyListeners();

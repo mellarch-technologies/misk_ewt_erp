@@ -5,6 +5,7 @@ import '../../services/currency_helper.dart';
 import '../donations/donations_list_screen.dart';
 import '../../services/rollup_service.dart' as roll;
 import '../../theme/app_theme.dart';
+import '../../widgets/metrics_components.dart';
 
 class InitiativeDetailScreen extends StatelessWidget {
   final Initiative initiative;
@@ -36,16 +37,184 @@ class InitiativeDetailScreen extends StatelessWidget {
     return (avg / 100).toDouble();
   }
 
+  Widget _buildCompactMetricsSection(BuildContext context) {
+    final goal = initiative.goalAmount ?? 0;
+    final confirmed = initiative.computedRaisedAmount ?? (initiative.raisedAmount ?? 0);
+    final reconciled = initiative.reconciledRaisedAmount ?? 0;
+    final execProgress = _execProgress();
+
+    return Container(
+      margin: const EdgeInsets.all(MiskTheme.spacingMedium),
+      padding: const EdgeInsets.all(MiskTheme.spacingMedium),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(MiskTheme.borderRadiusLarge),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 13), // 0.05 * 255 ≈ 13
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Progress Metrics',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: DesignTokens.weightSemiBold,
+              color: MiskTheme.miskDarkGreen,
+            ),
+          ),
+          const SizedBox(height: MiskTheme.spacingMedium),
+
+          // Financial Confirmed
+          if (goal > 0) ...[
+            MetricsRow(
+              label: 'Financial Confirmed',
+              percent: (confirmed / goal * 100).clamp(0, 100),
+              valueText: '${CurrencyHelper.formatInr(confirmed)} / ${CurrencyHelper.formatInr(goal)} - Confirmed',
+              colorToken: SemanticColors.accentGold,
+              icon: Icons.account_balance_wallet,
+            ),
+            const SizedBox(height: MiskTheme.spacingMedium),
+
+            // Reconciled in Bank
+            MetricsRow(
+              label: 'Reconciled in Bank',
+              percent: (reconciled / goal * 100).clamp(0, 100),
+              valueText: '${CurrencyHelper.formatInr(reconciled)} / ${CurrencyHelper.formatInr(goal)} - Reconciled',
+              colorToken: SemanticColors.successGreen,
+              icon: Icons.verified_user,
+            ),
+            const SizedBox(height: MiskTheme.spacingMedium),
+          ],
+
+          // Execution Progress
+          if (execProgress != null)
+            MetricsRow(
+              label: 'Execution Progress',
+              percent: (execProgress * 100).clamp(0, 100),
+              valueText: '${(execProgress * 100).toStringAsFixed(1)}% - Project completion',
+              colorToken: SemanticColors.infoBlue,
+              icon: Icons.engineering,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedMilestonesSection(BuildContext context) {
+    final milestones = initiative.milestones ?? [];
+    if (milestones.isEmpty) return const SizedBox.shrink();
+
+    // Group milestones by phase (if phase field exists)
+    final Map<String, List<Map<String, dynamic>>> groupedMilestones = {};
+    for (final milestone in milestones) {
+      final phase = milestone['phase']?.toString() ?? 'General';
+      groupedMilestones.putIfAbsent(phase, () => []).add(milestone);
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(MiskTheme.spacingMedium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.flag, color: MiskTheme.miskDarkGreen, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Project Milestones',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: DesignTokens.weightSemiBold,
+                  color: MiskTheme.miskDarkGreen,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MiskTheme.spacingMedium),
+
+          ...groupedMilestones.entries.map((entry) {
+            final phase = entry.key;
+            final phaseMilestones = entry.value;
+
+            return CollapsibleSection(
+              title: phase,
+              children: phaseMilestones.map((milestone) {
+                final title = milestone['title']?.toString() ?? 'Untitled';
+                final percent = milestone['percent']?.toDouble();
+                final completed = milestone['completed'] == true;
+                final blocked = milestone['blocked'] == true;
+
+                MilestoneStatus status;
+                if (completed) {
+                  status = MilestoneStatus.done;
+                } else if (blocked) {
+                  status = MilestoneStatus.blocked;
+                } else {
+                  status = MilestoneStatus.inProgress;
+                }
+
+                return MilestoneItem(
+                  title: title,
+                  status: status,
+                  percent: percent,
+                  onStatusToggle: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Milestone status toggle coming soon')),
+                    );
+                  },
+                );
+              }).toList(),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGallerySection(BuildContext context) {
+    final gallery = initiative.gallery ?? [];
+    if (gallery.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        const Text('Gallery', style: TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: gallery.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, i) => ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                gallery[i],
+                width: 140,
+                height: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 140,
+                  height: 100,
+                  color: Colors.grey.shade200,
+                  child: const Icon(Icons.broken_image),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateRange = _dateRange();
     final execProgress = _execProgress();
-
-    final goal = initiative.goalAmount ?? 0;
-    final confirmed = initiative.computedRaisedAmount ?? (initiative.raisedAmount ?? 0);
-    final reconciled = initiative.reconciledRaisedAmount ?? 0;
-    final finProgress = goal > 0 ? (confirmed / goal).clamp(0, 1).toDouble() : null;
-    final recProgress = goal > 0 ? (reconciled / goal).clamp(0, 1).toDouble() : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -133,43 +302,8 @@ class InitiativeDetailScreen extends StatelessWidget {
                     Text(initiative.description!),
                   ],
 
-                  // Financial Progress (Confirmed & Reconciled)
-                  if (finProgress != null) ...[
-                    const SizedBox(height: 20),
-                    const Text('Financial Progress (Confirmed)'),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: finProgress,
-                        minHeight: 10,
-                        backgroundColor: Colors.grey.shade200,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text('${(finProgress * 100).toStringAsFixed(0)}%  ('
-                        '${CurrencyHelper.formatInr(confirmed)} / ${CurrencyHelper.formatInr(goal)})'),
-                  ],
-                  if (recProgress != null) ...[
-                    const SizedBox(height: 12),
-                    const Text('Reconciled in Bank'),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: recProgress,
-                        minHeight: 10,
-                        backgroundColor: Colors.grey.shade200,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text('${(recProgress * 100).toStringAsFixed(0)}%  ('
-                        '${CurrencyHelper.formatInr(reconciled)} / ${CurrencyHelper.formatInr(goal)})'),
-                    const SizedBox(height: 6),
-                    Text('Note: Reconciled = bank-reflected donations',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                  ],
+                  // Compact Metrics Section
+                  _buildCompactMetricsSection(context),
 
                   // Execution Progress
                   if (execProgress != null) ...[
@@ -196,7 +330,9 @@ class InitiativeDetailScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => DonationsListScreen(initiativeRef: FirebaseFirestore.instance.doc('initiatives/${initiative.id}')),
+                              builder: (_) => DonationsListScreen(
+                                initiativeRef: FirebaseFirestore.instance.doc('initiatives/${initiative.id}')
+                              ),
                             ),
                           );
                         },
@@ -206,60 +342,11 @@ class InitiativeDetailScreen extends StatelessWidget {
                     ],
                   ),
 
-                  if ((initiative.milestones ?? []).isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    const Text('Milestones', style: TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    ...initiative.milestones!.map((m) {
-                      final title = (m['title'] ?? '').toString();
-                      final percent = (m['percent'] is num) ? (m['percent'] as num).toDouble() : null;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(title),
-                            if (percent != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: LinearProgressIndicator(
-                                  value: (percent / 100).clamp(0, 1),
-                                  minHeight: 6,
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
-                  if ((initiative.gallery ?? []).isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Text('Gallery', style: TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 100,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: initiative.gallery!.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, i) => ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            initiative.gallery![i],
-                            width: 140,
-                            height: 100,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 140,
-                              height: 100,
-                              color: Colors.grey.shade200,
-                              child: const Icon(Icons.broken_image),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  // Enhanced Milestones Section
+                  _buildEnhancedMilestonesSection(context),
+
+                  // Gallery Section
+                  _buildGallerySection(context),
                 ],
               ),
             ),

@@ -11,9 +11,11 @@ import '../../widgets/common_card.dart';
 import '../../widgets/misk_badge.dart';
 import '../../widgets/search_input.dart';
 import '../../widgets/filter_bar.dart';
+import '../../widgets/content_header.dart';
 
 class UsersListScreen extends StatefulWidget {
-  const UsersListScreen({super.key});
+  const UsersListScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<UsersListScreen> createState() => _UsersListScreenState();
@@ -199,7 +201,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.inShell ? null : AppBar(
         title: const Text('Users'),
         actions: [
           IconButton(
@@ -210,6 +212,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
       ),
       body: Column(
         children: [
+          const ContentHeader(title: 'Users'),
           Padding(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: FilterBar(

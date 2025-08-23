@@ -12,9 +12,11 @@ import 'package:http/http.dart' as http;
 import '../../services/app_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/search_input.dart';
+import '../../widgets/content_header.dart';
 
 class GlobalSettingsScreen extends StatefulWidget {
-  const GlobalSettingsScreen({super.key});
+  const GlobalSettingsScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<GlobalSettingsScreen> createState() => _GlobalSettingsScreenState();
@@ -27,11 +29,13 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
   Timestamp? _lastRunAt;
   int? _lastRunMs;
   String? _lastRunBy;
+  String _uploadsConnectionStatus = 'Unknown';
 
   @override
   void initState() {
     super.initState();
     _loadRollupMetrics();
+    _checkUploadsStatus();
   }
 
   Future<void> _loadRollupMetrics() async {
@@ -46,6 +50,30 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
         });
       }
     } catch (_) {}
+  }
+
+  // Enhanced uploads status check
+  Future<void> _checkUploadsStatus() async {
+    final cfg = AppConfig.photoStorage;
+    if (cfg.backend == PhotoBackend.none) {
+      setState(() => _uploadsConnectionStatus = 'Disabled');
+      return;
+    }
+
+    final url = cfg.endpointUrl;
+    if (url == null || url.isEmpty) {
+      setState(() => _uploadsConnectionStatus = 'Not configured');
+      return;
+    }
+
+    try {
+      final uri = Uri.parse(url);
+      final resp = await http.get(uri).timeout(const Duration(seconds: 5));
+      final ok = resp.statusCode < 500;
+      setState(() => _uploadsConnectionStatus = ok ? 'OK' : 'Degraded');
+    } catch (e) {
+      setState(() => _uploadsConnectionStatus = 'Down');
+    }
   }
 
   // Simple reachability ping for the configured uploads endpoint
@@ -113,131 +141,374 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     super.dispose();
   }
 
+  Widget _buildSectionHeader(String title) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: MiskTheme.spacingMedium,
+        vertical: MiskTheme.spacingSmall,
+      ),
+      decoration: BoxDecoration(
+        color: MiskTheme.miskLightGreen.withOpacity(0.1),
+        border: Border(
+          bottom: BorderSide(
+            color: MiskTheme.miskLightGreen.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: DesignTokens.weightSemiBold,
+          color: MiskTheme.miskDarkGreen,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    VoidCallback? onTap,
+    Widget? trailing,
+    bool showChevron = false,
+    Color? statusColor,
+    Widget? statusBadge,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: MiskTheme.miskGold.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: MiskTheme.miskDarkGreen,
+          size: 20,
+        ),
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: DesignTokens.weightMedium,
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          if (statusBadge != null) ...[
+            const SizedBox(height: 4),
+            statusBadge,
+          ],
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (trailing != null) trailing,
+          if (showChevron) ...[
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).dividerColor,
+            ),
+          ],
+        ],
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: MiskTheme.spacingMedium,
+        vertical: MiskTheme.spacingSmall,
+      ),
+      minLeadingWidth: 48,
+    );
+  }
+
+  Widget _buildUploadsStatusBadge() {
+    Color badgeColor;
+    IconData badgeIcon;
+
+    switch (_uploadsConnectionStatus) {
+      case 'OK':
+        badgeColor = SemanticColors.successGreen;
+        badgeIcon = Icons.check_circle;
+        break;
+      case 'Degraded':
+        badgeColor = SemanticColors.warningGold;
+        badgeIcon = Icons.warning;
+        break;
+      case 'Down':
+        badgeColor = SemanticColors.dangerRed;
+        badgeIcon = Icons.error;
+        break;
+      case 'Disabled':
+        badgeColor = SemanticColors.neutralGray;
+        badgeIcon = Icons.block;
+        break;
+      default:
+        badgeColor = SemanticColors.neutralGray;
+        badgeIcon = Icons.help;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: badgeColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(badgeIcon, size: 14, color: badgeColor),
+          const SizedBox(width: 4),
+          Text(
+            _uploadsConnectionStatus,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: badgeColor,
+              fontWeight: DesignTokens.weightMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRollupsStatusBadge() {
+    if (_lastRunAt == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: SemanticColors.neutralGray.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          'Never run',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
+
+    final runTime = _lastRunAt!.toDate();
+    final duration = _lastRunMs ?? 0;
+    final timeAgo = DateTime.now().difference(runTime);
+
+    String timeAgoText;
+    if (timeAgo.inDays > 0) {
+      timeAgoText = '${timeAgo.inDays}d ago';
+    } else if (timeAgo.inHours > 0) {
+      timeAgoText = '${timeAgo.inHours}h ago';
+    } else {
+      timeAgoText = '${timeAgo.inMinutes}m ago';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Last run: $timeAgoText (${duration}ms)',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (_lastRunBy != null)
+          Text(
+            'By: $_lastRunBy',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _confirmAndRunRollups() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Recompute Roll-ups'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('This will recompute financial metrics for all initiatives.'),
+            SizedBox(height: 8),
+            Text('This operation may take several minutes.'),
+            SizedBox(height: 8),
+            Text('Continue?', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _runRollups();
+    }
+  }
+
+  List<Map<String, dynamic>> get _allSettings {
+    return [
+      {
+        'section': 'Access & Security',
+        'items': [
+          {
+            'title': 'Roles & Permissions',
+            'subtitle': 'Manage user roles and access controls',
+            'icon': Icons.admin_panel_settings,
+            'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RolesListScreen())),
+            'showChevron': true,
+          },
+          {
+            'title': 'Security & App Lock',
+            'subtitle': 'Configure app lock and security settings',
+            'icon': Icons.security,
+            'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppLockSettingsScreen())),
+            'showChevron': true,
+          },
+        ],
+      },
+      {
+        'section': 'Payments',
+        'items': [
+          {
+            'title': 'Payment Providers / Bank Details',
+            'subtitle': 'Configure payment gateways and bank accounts',
+            'icon': Icons.payment,
+            'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentSettingsScreen())),
+            'showChevron': true,
+          },
+        ],
+      },
+      {
+        'section': 'Storage & Uploads',
+        'items': [
+          {
+            'title': 'Uploads Backend',
+            'subtitle': 'Configure file upload storage and settings',
+            'icon': Icons.cloud_upload,
+            'statusBadge': _buildUploadsStatusBadge(),
+            'trailing': TextButton(
+              onPressed: () => _pingUploads(context),
+              child: const Text('Test'),
+            ),
+          },
+        ],
+      },
+      {
+        'section': 'Maintenance',
+        'items': [
+          {
+            'title': 'Recompute Roll-ups',
+            'subtitle': 'Recalculate financial metrics and aggregations',
+            'icon': Icons.refresh,
+            'statusBadge': _buildRollupsStatusBadge(),
+            'trailing': _busyRollups
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : TextButton(
+                    onPressed: _confirmAndRunRollups,
+                    child: const Text('Run'),
+                  ),
+          },
+        ],
+      },
+    ];
+  }
+
+  List<Map<String, dynamic>> get _filteredSettings {
+    final query = _search.text.toLowerCase().trim();
+    if (query.isEmpty) return _allSettings;
+
+    return _allSettings.map((section) {
+      final filteredItems = (section['items'] as List<Map<String, dynamic>>)
+          .where((item) =>
+              item['title'].toString().toLowerCase().contains(query) ||
+              item['subtitle'].toString().toLowerCase().contains(query))
+          .toList();
+
+      return {
+        ...section,
+        'items': filteredItems,
+      };
+    }).where((section) => (section['items'] as List).isNotEmpty).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tiles = <Widget>[
-      ListTile(
-        leading: const Icon(Icons.admin_panel_settings, color: MiskTheme.miskGold),
-        title: const Text('Roles & Permissions'),
-        subtitle: const Text('Manage roles and permissions for all users'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      // Access & Security section
+      _buildSectionHeader('Access & Security'),
+      _buildSettingsTile(
+        title: 'Roles & Permissions',
+        subtitle: 'Manage user roles and access controls',
+        icon: Icons.admin_panel_settings,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RolesListScreen())),
+        showChevron: true,
       ),
-      ListTile(
-        leading: const Icon(Icons.security, color: MiskTheme.miskGold),
-        title: const Text('Security & App Lock'),
-        subtitle: const Text('Enable app lock, set PIN/biometrics, idle timeout'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      _buildSettingsTile(
+        title: 'Security & App Lock',
+        subtitle: 'Configure app lock and security settings',
+        icon: Icons.security,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppLockSettingsScreen())),
+        showChevron: true,
       ),
-      ListTile(
-        leading: const Icon(Icons.account_balance_wallet, color: MiskTheme.miskGold),
-        title: const Text('Payments'),
-        subtitle: const Text('Razorpay, UPI and Bank details for Public App'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      // Payments section
+      _buildSectionHeader('Payments'),
+      _buildSettingsTile(
+        title: 'Payment Providers / Bank Details',
+        subtitle: 'Configure payment gateways and bank accounts',
+        icon: Icons.payment,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentSettingsScreen())),
+        showChevron: true,
       ),
-      // Uploads backend status and ping
-      Builder(
-        builder: (ctx) {
-          final cfg = AppConfig.photoStorage;
-          final backendLabel = () {
-            switch (cfg.backend) {
-              case PhotoBackend.none:
-                return 'none (disabled)';
-              case PhotoBackend.sharedHosting:
-                return 'sharedHosting';
-              case PhotoBackend.googleDrive:
-                return 'googleDrive';
-            }
-          }();
-          final endpoint = cfg.endpointUrl ?? 'Not set';
-          return ListTile(
-            leading: const Icon(Icons.cloud_upload, color: MiskTheme.miskGold),
-            title: const Text('Uploads backend'),
-            subtitle: Text('Backend: $backendLabel\nEndpoint: $endpoint'),
-            isThreeLine: true,
-            trailing: TextButton.icon(
-              onPressed: () => _pingUploads(ctx),
-              icon: const Icon(Icons.network_check),
-              label: const Text('Test'),
-            ),
-          );
-        },
-      ),
-      // Recompute roll-ups panel
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingSmall),
-        child: Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: Colors.grey.shade300),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Recompute roll-ups', style: TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                Text(
-                  _lastRunAt != null
-                      ? 'Last run: ${_lastRunAt!.toDate().toLocal()} • Duration: ${_lastRunMs ?? '-'} ms • By: ${_lastRunBy ?? '-'}'
-                      : 'No previous run info',
-                  style: TextStyle(color: Colors.grey.shade700),
-                ),
-                if (_errorMsg != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(_errorMsg!, style: const TextStyle(color: Colors.red))),
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ElevatedButton.icon(
-                    onPressed: _busyRollups
-                        ? null
-                        : () async {
-                            // confirm
-                            final initCount = (await FirebaseFirestore.instance.collection('initiatives').count().get()).count ?? 0;
-                            final ok = await showDialog<bool>(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text('Run roll-ups?'),
-                                content: Text('This will recompute financial totals for $initCount initiative(s). Proceed?'),
-                                actions: [
-                                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                                  ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Run')),
-                                ],
-                              ),
-                            );
-                            if (ok == true) await _runRollups();
-                          },
-                    icon: _busyRollups
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.sync),
-                    label: Text(_busyRollups ? 'Running…' : 'Run roll-ups'),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      // Storage & Uploads section
+      _buildSectionHeader('Storage & Uploads'),
+      _buildSettingsTile(
+        title: 'Uploads Backend',
+        subtitle: 'Configure file upload storage and settings',
+        icon: Icons.cloud_upload,
+        statusBadge: _buildUploadsStatusBadge(),
+        trailing: TextButton(
+          onPressed: () => _pingUploads(context),
+          child: const Text('Test'),
         ),
+      ),
+      // Maintenance section
+      _buildSectionHeader('Maintenance'),
+      _buildSettingsTile(
+        title: 'Recompute Roll-ups',
+        subtitle: 'Recalculate financial metrics and aggregations',
+        icon: Icons.refresh,
+        statusBadge: _buildRollupsStatusBadge(),
+        trailing: _busyRollups
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : TextButton(
+                onPressed: _confirmAndRunRollups,
+                child: const Text('Run'),
+              ),
       ),
     ];
 
@@ -255,12 +526,13 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
           }).toList();
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.inShell ? null : AppBar(
         title: const Text('Global Settings'),
         leading: const BackOrHomeButton(),
       ),
       body: ListView(
         children: [
+          const ContentHeader(title: 'Global Settings'),
           Padding(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
             child: SearchInput(controller: _search, hintText: 'Search settings...', onChanged: (_) => setState(() {})),

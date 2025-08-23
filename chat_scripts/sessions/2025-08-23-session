@@ -1,0 +1,54 @@
+Got it. I’ll lock down the App Bar and Navigation patterns first, then move to Dashboard polish, so it’s easy to follow and test in small steps.
+App Bar: improvements and final pattern
+Brand-first, page-second
+Always show MISK ERP + logo in the AppBar.
+Move the page name into a consistent “content header” inside each screen (beneath the AppBar) with optional breadcrumbs and quick actions.
+Right-side actions
+User avatar menu (Profile, Logout).
+Notifications bell with badge (click opens notifications).
+Optional per-screen action slot (e.g., Add button) shown in the content header, not the AppBar, for consistency.
+Optional context bar
+When screens have filters/search, keep them in a sticky FilterBar below the content header (not in the AppBar), so UI remains consistent across mobile/desktop.
+Left Nav: improvements
+Structure and clarity
+Keep NavigationRail on wide screens; Drawer on mobile.
+Add section headers + dividers (e.g., Core, Operations, Settings).
+Show tooltips when collapsed (future enhancement: collapsible rail).
+Visibility and feedback
+Permission-based visibility (hide items the user can’t access).
+Small badges (e.g., “My tasks” count) where relevant.
+State
+Persist last selected tab; restore on app relaunch.
+Footer Nav (mobile): options and recommendation
+Option A (recommended): Material 3 NavigationBar with max 4 primary tabs (Dashboard, Users, Tasks, Donations) + “More” in Drawer for the rest.
+Option B: Drawer-only (no bottom nav) to minimize clutter.
+I’ll implement Option A cleanly (compact, no overflow) and can flip to B in one commit if you prefer.
+Dashboard: target layout (after nav/app bar are locked)
+Header card: greeting + trust name, no extra AppBar text.
+KPIs: 2-up grid (fallback to 1 on narrow); add subtle trending arrows later.
+My Tasks: directly below KPIs, two-column tiles on wide, list on mobile.
+Recent Activities: last section, same responsive behavior; skeleton loaders to avoid layout jumps.
+Strict overflow safety: shrinkWrap + no nested scroll conflicts.
+Step-by-step rollout (small, testable)
+App Bar unification
+Keep MISK ERP + logo only in AppBar.
+Add a reusable ContentHeader widget (title, subtitle, breadcrumbs, actions) used by each screen.
+Acceptance: No duplicate app bars anywhere; titles appear in the content header consistently.
+Left Nav polish
+Group items with dividers and labels; ensure Users is present.
+Permission-based visibility; persist last tab.
+Acceptance: Rail/Drawer match, sections visible, state is persisted.
+Mobile footer nav
+Implement NavigationBar (4 items) + Drawer “More”.
+Acceptance: No overflow; nav feels native on mobile.
+Dashboard cleanup
+Ensure 2-up KPI and two-column My Tasks/Recent Activities on wide, list on narrow; verify no RenderFlex overflow.
+Acceptance: Layout matches order and is responsive; scroll is smooth.
+Micro-polish (quick wins)
+Avatar menu + notifications badge.
+Active nav highlights; tooltip on collapsed rail.
+Small counters on nav items (e.g., tasks).
+Notes to keep us steady
+We’ll consolidate legacy lib-v* folders right after nav/app bar (to avoid mixed UI creeping back).
+We’ll add a couple of widget smoke tests (AppShell nav + Dashboard layout) to lock behavior.
+If you’re okay, I’ll implement Step 1 (App Bar + ContentHeader) now, then show you the result before moving to Step 2.

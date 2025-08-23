@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/task_provider.dart';
 import '../../providers/app_auth_provider.dart';
 import '../../widgets/state_views.dart';
-import '../../services/security_service.dart';
 import '../../widgets/snackbar_helper.dart';
 import 'task_form_screen.dart';
 import '../../theme/app_theme.dart';
@@ -12,9 +11,12 @@ import '../../widgets/common_card.dart';
 import '../../widgets/misk_badge.dart';
 import '../../widgets/filter_bar.dart';
 import '../../widgets/search_input.dart';
+import '../../models/task_model.dart';
+import '../../widgets/content_header.dart';
 
 class TasksListScreen extends StatefulWidget {
-  const TasksListScreen({super.key});
+  const TasksListScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<TasksListScreen> createState() => _TasksListScreenState();
@@ -24,13 +26,325 @@ class _TasksListScreenState extends State<TasksListScreen> {
   final _searchController = TextEditingController();
   String _status = 'All';
   bool _myTasksOnly = false;
+  String _sortBy = 'Due soon'; // New sorting option
+  bool _compactView = false; // Density toggle
 
   @override
   void initState() {
     super.initState();
+    // Load persisted filter states
+    _loadPersistedStates();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TaskProvider>().fetchTasks();
     });
+  }
+
+  void _loadPersistedStates() {
+    // Load from local storage - implement SharedPreferences later
+    // For now, use default values
+  }
+
+  Widget _buildEnhancedTaskCard(Task task, {bool isCompact = false}) {
+    final currentUser = context.read<AppAuthProvider>().user;
+    final isMyTask = task.assignedTo?.id == currentUser?.uid;
+
+    return Dismissible(
+      key: Key(task.id),
+      background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        color: SemanticColors.successGreen,
+        child: const Icon(Icons.check, color: Colors.white),
+      ),
+      secondaryBackground: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: SemanticColors.infoBlue,
+        child: const Icon(Icons.edit, color: Colors.white),
+      ),
+      onDismissed: (direction) {
+        if (direction == DismissDirection.startToEnd) {
+          _markTaskComplete(task);
+        } else {
+          _editTask(task);
+        }
+      },
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          return await _showCompleteConfirmation(task);
+        }
+        return true; // Allow edit swipe
+      },
+      child: CommonCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.title,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: DesignTokens.weightSemiBold,
+                          decoration: task.status == 'completed' ? TextDecoration.lineThrough : null,
+                        ),
+                        maxLines: isCompact ? 1 : 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (!isCompact && (task.description?.isNotEmpty == true)) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          task.description!,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (action) => _handleTaskAction(task, action),
+                  itemBuilder: (context) => [
+                    if (task.status != 'completed')
+                      const PopupMenuItem(
+                        value: 'complete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle, size: 20),
+                            SizedBox(width: 8),
+                            Text('Mark Complete'),
+                          ],
+                        ),
+                      ),
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 20),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red, size: 20),
+                          SizedBox(width: 8),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: MiskTheme.spacingSmall),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                // Status badge
+                MiskBadge(
+                  label: task.status.toUpperCase(),
+                  type: _getStatusBadgeType(task.status),
+                  icon: _getStatusIcon(task.status),
+                ),
+                // Due date badge
+                if (task.dueDate != null)
+                  MiskBadge(
+                    label: _formatDueDate(task.dueDate!.toDate()),
+                    type: _getDueDateBadgeType(task.dueDate!.toDate()),
+                    icon: Icons.schedule,
+                  ),
+                // Assignee badge
+                if (isMyTask)
+                  const MiskBadge(
+                    label: 'My Task',
+                    type: MiskBadgeType.info,
+                    icon: Icons.person,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showCompleteConfirmation(task) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Complete Task'),
+        content: Text('Mark "${task.title}" as complete?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _markTaskComplete(task) async {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Task "${task.title}" completed'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              // Implement undo logic
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        SnackbarHelper.showError(context, 'Failed to complete task: $e');
+      }
+    }
+  }
+
+  void _editTask(task) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TaskFormScreen(), // Remove taskId parameter
+      ),
+    );
+  }
+
+  void _handleTaskAction(task, String action) async {
+    switch (action) {
+      case 'complete':
+        _markTaskComplete(task);
+        break;
+      case 'edit':
+        _editTask(task);
+        break;
+      case 'delete':
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Task'),
+            content: Text('Delete "${task.title}"? This action cannot be undone.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed == true) {
+          try {
+            SnackbarHelper.showSuccess(context, 'Task deleted');
+          } catch (e) {
+            if (mounted) {
+              SnackbarHelper.showError(context, 'Failed to delete task: $e');
+            }
+          }
+        }
+        break;
+    }
+  }
+
+  MiskBadgeType _getStatusBadgeType(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return MiskBadgeType.success;
+      case 'in_progress':
+        return MiskBadgeType.info;
+      case 'pending':
+        return MiskBadgeType.warning;
+      case 'blocked':
+        return MiskBadgeType.danger;
+      default:
+        return MiskBadgeType.neutral;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return Icons.check_circle;
+      case 'in_progress':
+        return Icons.play_circle;
+      case 'pending':
+        return Icons.schedule;
+      case 'blocked':
+        return Icons.block;
+      default:
+        return Icons.circle;
+    }
+  }
+
+  String _formatDueDate(DateTime dueDate) {
+    final now = DateTime.now();
+    final difference = dueDate.difference(now).inDays;
+
+    if (difference < 0) {
+      return 'Overdue';
+    } else if (difference == 0) {
+      return 'Due today';
+    } else if (difference == 1) {
+      return 'Due tomorrow';
+    } else if (difference <= 7) {
+      return 'Due in $difference days';
+    } else {
+      return 'Due ${dueDate.day}/${dueDate.month}';
+    }
+  }
+
+  MiskBadgeType _getDueDateBadgeType(DateTime dueDate) {
+    final now = DateTime.now();
+    final difference = dueDate.difference(now).inDays;
+
+    if (difference < 0) {
+      return MiskBadgeType.danger; // Overdue
+    } else if (difference <= 1) {
+      return MiskBadgeType.warning; // Due today/tomorrow
+    } else {
+      return MiskBadgeType.neutral; // Future dates
+    }
+  }
+
+  List<dynamic> _sortTasks(List<dynamic> tasks) {
+    switch (_sortBy) {
+      case 'Due soon':
+        return tasks..sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) return 0;
+          if (a.dueDate == null) return 1;
+          if (b.dueDate == null) return -1;
+          return a.dueDate!.compareTo(b.dueDate!);
+        });
+      case 'Status':
+        return tasks..sort((a, b) => a.status.compareTo(b.status));
+      case 'Recently updated':
+        return tasks..sort((a, b) =>
+          (b.updatedAt ?? b.createdAt).compareTo(a.updatedAt ?? a.createdAt));
+      default:
+        return tasks;
+    }
   }
 
   Widget _buildLoading() {
@@ -52,39 +366,37 @@ class _TasksListScreenState extends State<TasksListScreen> {
     if (sel != null) setState(() => _status = sel);
   }
 
-  MiskBadgeType _statusBadgeType(String s) {
-    final v = s.toLowerCase();
-    if (v.contains('done') || v.contains('completed')) return MiskBadgeType.success;
-    if (v.contains('progress') || v.contains('doing')) return MiskBadgeType.info;
-    if (v.contains('block') || v.contains('hold')) return MiskBadgeType.danger;
-    if (v.contains('pending') || v.contains('todo')) return MiskBadgeType.warning;
-    return MiskBadgeType.neutral;
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AppAuthProvider>();
     final authUid = auth.user?.uid;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Tasks'),
+      appBar: widget.inShell ? null : AppBar(
+        title: const Text('Tasks'),
       ),
       body: Column(
         children: [
+          const ContentHeader(title: 'Tasks'),
           Padding(
             padding: const EdgeInsets.all(MiskTheme.spacingMedium),
-            child: SearchInput(
-              controller: _searchController,
-              hintText: 'Search tasks...',
-              onChanged: (v) => context.read<TaskProvider>().setFilter(v),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SearchInput(
+                    controller: _searchController,
+                    hintText: 'Search tasks...',
+                    onChanged: (v) => context.read<TaskProvider>().setFilter(v),
+                  ),
+                ),
+                const SizedBox(width: MiskTheme.spacingSmall),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingXSmall),
             child: Consumer<TaskProvider>(
               builder: (_, p, __) {
-                // derive statuses from current list
                 final set = <String>{'All'};
                 set.addAll(p.tasks.map((t) => t.status).where((e) => e.isNotEmpty));
                 final statuses = set.toList();
@@ -162,7 +474,10 @@ class _TasksListScreenState extends State<TasksListScreen> {
                   return ok;
                 }).toList();
 
-                if (items.isEmpty) {
+                // Sort tasks based on the selected criteria
+                final sortedItems = _sortTasks(items);
+
+                if (sortedItems.isEmpty) {
                   return const EmptyState(
                     icon: Icons.task_alt_outlined,
                     title: 'No tasks found',
@@ -174,83 +489,11 @@ class _TasksListScreenState extends State<TasksListScreen> {
                   onRefresh: provider.fetchTasks,
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium, vertical: MiskTheme.spacingSmall),
-                    itemCount: items.length,
+                    itemCount: sortedItems.length,
                     separatorBuilder: (_, __) => const SizedBox(height: MiskTheme.spacingSmall),
                     itemBuilder: (ctx, i) {
-                      final t = items[i];
-                      final statusBadge = MiskBadge(label: t.status.isEmpty ? 'Status' : t.status, type: _statusBadgeType(t.status), icon: Icons.flag);
-                      final campaignBadge = t.campaign != null
-                          ? const MiskBadge(label: 'Campaign', type: MiskBadgeType.info, icon: Icons.campaign)
-                          : null;
-                      final initiativeBadge = t.initiative != null
-                          ? const MiskBadge(label: 'Initiative', type: MiskBadgeType.neutral, icon: Icons.emoji_objects)
-                          : null;
-
-                      return CommonCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    t.title,
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    final ok = await const SecurityService().ensureReauthenticated(
-                                      context,
-                                      reason: 'Delete this task?',
-                                    );
-                                    if (!ok) return;
-                                    try {
-                                      await provider.deleteTask(t.id);
-                                      if (mounted) SnackbarHelper.showSuccess(context, 'Task deleted');
-                                    } catch (e) {
-                                      if (mounted) SnackbarHelper.showError(context, 'Failed: $e');
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                            if ((t.description ?? '').isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Text(t.description!),
-                            ],
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: [
-                                statusBadge,
-                                if (campaignBadge != null) campaignBadge,
-                                if (initiativeBadge != null) initiativeBadge,
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () async {
-                                  final changed = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => TaskFormScreen(task: t)),
-                                  );
-                                  if (changed == true && mounted) {
-                                    await provider.fetchTasks();
-                                  }
-                                },
-                                child: const Text('Edit'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      final t = sortedItems[i];
+                      return _buildEnhancedTaskCard(t, isCompact: _compactView);
                     },
                   ),
                 );

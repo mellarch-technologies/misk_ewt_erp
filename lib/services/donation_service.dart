@@ -16,7 +16,7 @@ class DonationService {
     }
     final snap = await q.get();
     final items = snap.docs
-        .map((d) => Donation.fromFirestore(d.data() as Map<String, dynamic>, d.id))
+        .map((d) => Donation.fromFirestore(d.data(), d.id))
         .toList();
     items.sort((a, b) {
       final ta = (a.receivedAt ?? a.createdAt)?.toDate();
@@ -39,7 +39,7 @@ class DonationService {
     }
     return q.snapshots().map((s) {
       final items = s.docs
-          .map((d) => Donation.fromFirestore(d.data() as Map<String, dynamic>, d.id))
+          .map((d) => Donation.fromFirestore(d.data(), d.id))
           .toList();
       items.sort((a, b) {
         final ta = (a.receivedAt ?? a.createdAt)?.toDate();
@@ -98,4 +98,52 @@ class DonationService {
     await _col.doc(id).update(update);
     await roll.RollupService().recomputeInitiativeFinancial(initiativeRef);
   }
+
+  // Pagination + date-range (by createdAt)
+  Future<DonationsPage> getDonationsPage({
+    DocumentReference? initiative,
+    DocumentReference? campaignRef,
+    Timestamp? startDate,
+    Timestamp? endDate,
+    int limit = 20,
+    DocumentSnapshot? startAfter,
+  }) async {
+    Query<Map<String, dynamic>> q = _col.orderBy('createdAt', descending: true);
+    if (initiative != null) q = q.where('initiative', isEqualTo: initiative);
+    if (campaignRef != null) q = q.where('campaign', isEqualTo: campaignRef);
+    if (startDate != null) q = q.where('createdAt', isGreaterThanOrEqualTo: startDate);
+    if (endDate != null) q = q.where('createdAt', isLessThanOrEqualTo: endDate);
+    if (startAfter != null) q = q.startAfterDocument(startAfter);
+    q = q.limit(limit);
+
+    final snap = await q.get();
+    final items = snap.docs
+        .map((d) => Donation.fromFirestore(d.data(), d.id))
+        .toList();
+    final last = snap.docs.isNotEmpty ? snap.docs.last : null;
+    final hasMore = snap.size >= limit;
+    return DonationsPage(items: items, lastDoc: last, hasMore: hasMore);
+  }
+
+  // Bulk reconcile: mark multiple donations as reconciled
+  Future<void> bulkReconcile(List<String> donationIds, DocumentReference initiativeRef) async {
+    final batch = FirebaseFirestore.instance.batch();
+    for (final id in donationIds) {
+      final docRef = _col.doc(id);
+      batch.update(docRef, {
+        'bankReconciled': true,
+        'reconciledAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+    await batch.commit();
+    await roll.RollupService().recomputeInitiativeFinancial(initiativeRef);
+  }
+}
+
+class DonationsPage {
+  final List<Donation> items;
+  final DocumentSnapshot? lastDoc;
+  final bool hasMore;
+  DonationsPage({required this.items, required this.lastDoc, required this.hasMore});
 }

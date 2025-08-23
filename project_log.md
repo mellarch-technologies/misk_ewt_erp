@@ -748,3 +748,53 @@ Next
 - Donations list: optionally add SearchInput (by donor name/ref) to match other lists.
 - Settings/UI polish: apply CommonCard/spacing tokens to Payment/Global/Security screens.
 - Public App: implement Bank Transfer and UPI flows (instructions + receipt form), then Razorpay.
+
+## Version: Dashboard Nav Restored + KPI Layout Update (2025-08-22)
+
+### Summary
+- Restored left navigation shell across devices:
+  - NavigationRail visible on widths ≥ 800px (tablet/desktop).
+  - Drawer + BottomNavigation on narrow screens to mirror left nav items.
+- Dashboard layout aligned to plan:
+  - Order: Welcome → KPIs → My Tasks → Recent Activities.
+  - KPIs show two cards per row (fallback to one on very narrow widths) with responsive sizing.
+  - Overflow issues fixed via responsive grid and shrink-wrapped lists.
+- Code quality: No analyzer errors; deprecated color APIs updated to withValues; theme tokens used.
+
+### Affected Files
+- lib/widgets/app_shell.dart (left nav breakpoint, Drawer on small screens)
+- lib/main.dart (route '/dashboard' → AppShell)
+- lib/screens/dashboard_screen.dart (KPI grid, ordering, overflow fixes)
+
+### Next Focus (UI/UX First)
+- Live KPIs: users, initiatives, campaigns, tasks, donations (confirmed/reconciled).
+- Unified Recent Activities feed: events, announcements, donations, and task updates.
+- My Tasks: add quick status filters and “View all”.
+- Permission-based visibility for KPIs and sections.
+
+### Roadmap (Short)
+1) Dashboard polish (2–3 days) → Live data + unified feed.
+2) Auth/Provider stability (1–2 days) → typed errors, dedup methods.
+3) Roles & Permissions UI (2–3 days) → CRUD + guardrails.
+4) Public app foundation (1–2 weeks) → public initiatives/campaigns/donations/events.
+
+## [2025-08-23] Phase 2 — App Bar/Nav Fine-tuning (Step 2)
+
+What changed
+- AppShell: brand-only AppBar now includes right-side actions (notifications placeholder + avatar menu with Profile/Logout).
+- Drawer: grouped into Core / Operations / Settings with section labels and dividers; Users present.
+- Persistence: last selected tab saved to SharedPreferences and restored on relaunch.
+- Permission gating: nav visibility wired (Users requires can_manage_users; Super Admin overrides). While permissions load, all items are shown to avoid flicker.
+- Mobile footer nav: Material 3 NavigationBar for primary tabs (Dashboard, Users, Tasks, Donations); remaining items in Drawer.
+- ContentHeader rollout: UsersListScreen now uses ContentHeader like other list/settings screens, keeping page titles out of the AppBar.
+
+Acceptance checks
+- Single AppBar globally (brand-first), no duplicate AppBars on in-shell screens.
+- Page titles rendered via ContentHeader across main screens.
+- Nav is consistent (rail on wide, Drawer + bottom nav on narrow), with permission-based visibility.
+- No analyzer errors on modified files (minor unused field warning in AppShell: _titles).
+
+Next (Step 3)
+- Optional micro-polish: nav tooltips on collapsed rail; small counters (e.g., My tasks) on nav items.
+- Dashboard: live KPIs + My Tasks + Recent Activities with skeletons and permission-based visibility.
+- Roles UI: consider gating access points from Settings and enforcing in UI.

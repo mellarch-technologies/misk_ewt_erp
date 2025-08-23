@@ -9,9 +9,11 @@ import '../../widgets/back_or_home_button.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/filter_bar.dart';
 import '../../widgets/search_input.dart';
+import '../../widgets/content_header.dart';
 
 class InitiativesListScreen extends StatefulWidget {
-  const InitiativesListScreen({super.key});
+  const InitiativesListScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<InitiativesListScreen> createState() => _InitiativesListScreenState();
@@ -81,9 +83,10 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Initiatives'), leading: const BackOrHomeButton()),
+      appBar: widget.inShell ? null : AppBar(title: const Text('Initiatives'), leading: const BackOrHomeButton()),
       body: Column(
         children: [
+          const ContentHeader(title: 'Initiatives'),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               MiskTheme.spacingMedium,

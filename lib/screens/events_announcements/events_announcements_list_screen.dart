@@ -13,7 +13,8 @@ import '../../widgets/filter_bar.dart';
 import '../../widgets/search_input.dart';
 
 class EventsAnnouncementsListScreen extends StatefulWidget {
-  const EventsAnnouncementsListScreen({super.key});
+  const EventsAnnouncementsListScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<EventsAnnouncementsListScreen> createState() => _EventsAnnouncementsListScreenState();
@@ -79,7 +80,7 @@ class _EventsAnnouncementsListScreenState extends State<EventsAnnouncementsListS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Events & Announcements'), leading: const BackOrHomeButton()),
+      appBar: widget.inShell ? null : AppBar(title: const Text('Events & Announcements'), leading: const BackOrHomeButton()),
       body: Column(
         children: [
           Padding(

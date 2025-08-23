@@ -17,7 +17,6 @@ import 'providers/event_announcement_provider.dart';
 import 'providers/app_lock_provider.dart';
 
 import 'screens/login_screen.dart';
-import 'screens/dashboard_screen.dart';
 import 'screens/users/users_list_screen.dart';
 import 'screens/users/user_form_screen.dart';
 import 'screens/roles/roles_list_screen.dart';
@@ -61,12 +60,13 @@ class MiskEwtErpApp extends StatelessWidget {
       ],
       child: AppLifecycleWatcher(
         child: MaterialApp(
-          title: 'MISK EWT ERP',
+          title: 'MISK Mini ERP',
           debugShowCheckedModeBanner: false,
           theme: MiskTheme.lightTheme,
           routes: {
             '/login': (_) => const LoginScreen(),
-            '/dashboard': (_) => const DashboardScreen(),
+            // Ensure dashboard route loads the shell (left nav) instead of a standalone screen
+            '/dashboard': (_) => AppShell(key: AppShell.shellKey),
             '/users_list': (_) => const UsersListScreen(),
             '/users': (_) => const UsersListScreen(),
             '/users/form': (_) => const UserFormScreen(),
@@ -116,6 +116,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     // Detect login transition
     if (auth.user != _lastUser) {
+      // Load/clear permissions on auth change
+      final perm = Provider.of<PermissionProvider>(context, listen: false);
+      if (auth.user != null) {
+        // Load permissions by email
+        perm.loadForEmail(auth.user!.email);
+      } else {
+        // Clear permissions on logout
+        perm.clearPermissions();
+      }
+
       // If newly logged in, show welcome once
       if (auth.user != null && _lastUser == null && !_showedWelcome) {
         if (mounted) {

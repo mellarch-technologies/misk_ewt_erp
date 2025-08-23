@@ -1,6 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// Design System Tokens (as recommended by Perplexity review)
+class DesignTokens {
+  // Spacing Grid (8dp system)
+  static const double spacing4 = 4.0;
+  static const double spacing8 = 8.0;
+  static const double spacing16 = 16.0;
+  static const double spacing24 = 24.0;
+  static const double spacing32 = 32.0;
+
+  // Typography Scale
+  static const double titleLarge = 18.0;
+  static const double titleMedium = 16.0;
+  static const double bodyMedium = 14.0;
+  static const double bodySmall = 12.0;
+
+  // Font Weights
+  static const FontWeight weightRegular = FontWeight.w400;
+  static const FontWeight weightMedium = FontWeight.w500;
+  static const FontWeight weightSemiBold = FontWeight.w600;
+  static const FontWeight weightBold = FontWeight.w700;
+
+  // Chip Standards (28dp height as recommended)
+  static const double chipHeight = 28.0;
+  static const double chipPadding = 12.0;
+  static const double chipRadius = 16.0;
+
+  // Progress Bar Standards
+  static const double progressBarHeight = 8.0;
+  static const double progressBarRadius = 6.0;
+
+  // Touch Targets (minimum 44dp for accessibility)
+  static const double minTouchTarget = 44.0;
+}
+
+// Semantic Colors (WCAG AA compliant)
+class SemanticColors {
+  static const Color primaryGreen = Color(0xFF2E5E37);
+  static const Color accentGold = Color(0xFFDAA520);
+  static const Color infoBlue = Color(0xFF3F6FE0);
+  static const Color successGreen = Color(0xFF2FB36E);
+  static const Color warningGold = Color(0xFFF2B538);
+  static const Color dangerRed = Color(0xFFD64545);
+  static const Color neutralGray = Color(0xFFECEEF2);
+}
+
 class MiskTheme {
 // MISK Brand Colors - Authentic Islamic Design Palette
   static const Color miskGold = Color(0xFFDAA520); // Primary: Luxury, wisdom
@@ -10,6 +55,16 @@ class MiskTheme {
   static const Color miskTextDark = Color(0xFF2C2C2C); // Text: Professional readability
   static const Color miskWhite = Color(0xFFFFFFFF); // Pure white
   static const Color miskErrorRed = Color(0xFFD32F2F); // Error states
+  static const Color memberPurple = Color(0xFF7C4DFF); // Members
+  static const Color eventBlue = Color(0xFF3F6FE0); // Events
+  static const Color donationGreen = Color(0xFF2FB36E); // Donations
+  static const Color warningOrange = Color(0xFFF2B538); // Tasks/Warnings
+  static const Color primaryGreen = Color(0xFF2E5E37); // Primary
+  static const Color accentGold = Color(0xFFDAA520); // Accent
+  static const Color financeOrange = Color(0xFFFFA726); // Finance
+  static const Color darkBlue = Color(0xFF283593); // Projects
+  static const Color successGreen = Color(0xFF2FB36E); // Reports/Success
+  static const Color textMedium = Color(0xFF757575); // Settings/Text
 
 // Gradient Colors for Enhanced UI
   static const LinearGradient goldGradient = LinearGradient(

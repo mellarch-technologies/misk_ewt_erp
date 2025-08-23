@@ -11,9 +11,11 @@ import '../../widgets/filter_bar.dart';
 import '../../widgets/common_card.dart';
 import '../../widgets/misk_badge.dart';
 import '../../widgets/search_input.dart';
+import '../../widgets/content_header.dart';
 
 class CampaignsListScreen extends StatefulWidget {
-  const CampaignsListScreen({super.key});
+  const CampaignsListScreen({super.key, this.inShell = false});
+  final bool inShell;
 
   @override
   State<CampaignsListScreen> createState() => _CampaignsListScreenState();
@@ -82,12 +84,13 @@ class _CampaignsListScreenState extends State<CampaignsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.inShell ? null : AppBar(
         title: const Text('Campaigns'),
         leading: const BackOrHomeButton(),
       ),
       body: Column(
         children: [
+          const ContentHeader(title: 'Campaigns'),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               MiskTheme.spacingMedium,

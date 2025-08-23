@@ -216,11 +216,6 @@ class _UserFormScreenState extends State<UserFormScreen> {
                                   : const Icon(Icons.upload),
                               label: Text(_isUploadingPhoto ? 'Uploading…' : 'Upload Photo'),
                             ),
-                          OutlinedButton.icon(
-                            onPressed: _isSaving ? null : _promptPhotoUrl,
-                            icon: const Icon(Icons.link),
-                            label: const Text('Set Photo URL'),
-                          ),
                           TextButton(
                             onPressed: _isSaving
                                 ? null
@@ -374,30 +369,6 @@ class _UserFormScreenState extends State<UserFormScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _promptPhotoUrl() async {
-    final controller = TextEditingController(text: _photo ?? '');
-    final url = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Set Photo URL'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'https://example.com/photo.jpg'),
-          keyboardType: TextInputType.url,
-          autofocus: true,
-          onSubmitted: (_) => Navigator.pop(ctx, controller.text.trim()),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, controller.text.trim()), child: const Text('Save')),
-        ],
-      ),
-    );
-    if (url != null) {
-      setState(() => _photo = url.isEmpty ? null : url);
-    }
   }
 
   Future<void> _uploadPhotoFlow() async {
