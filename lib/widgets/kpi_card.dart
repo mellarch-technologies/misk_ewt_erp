@@ -5,8 +5,15 @@ class KpiCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final Future<int> Function() loadCount;
+  final double? trendPct;
 
-  const KpiCard({super.key, required this.title, required this.icon, required this.loadCount});
+  const KpiCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.loadCount,
+    this.trendPct,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +51,43 @@ class KpiCard extends StatelessWidget {
                       return Text('-', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color));
                     }
                     final count = snapshot.data ?? 0;
-                    return Text('$count', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color));
+                    return Row(
+                      children: [
+                        Text('$count', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color)),
+                        if (trendPct != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: _buildTrendBadge(trendPct!),
+                          ),
+                      ],
+                    );
                   },
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTrendBadge(double pct) {
+    final isUp = pct >= 0;
+    final badgeColor = isUp ? Colors.green : Colors.red;
+    final arrow = isUp ? Icons.arrow_upward : Icons.arrow_downward;
+    final pctStr = pct.abs().toStringAsFixed(1);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: badgeColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(arrow, size: 14, color: badgeColor),
+          const SizedBox(width: 2),
+          Text('$pctStr%', style: TextStyle(fontSize: 12, color: badgeColor, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }

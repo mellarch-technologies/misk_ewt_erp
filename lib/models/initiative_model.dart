@@ -67,6 +67,17 @@ class Initiative {
     this.lastComputedAt,
   });
 
+  // Safe numeric conversion from dynamic (handles num or numeric strings; ignores others)
+  static num? _toNum(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    if (v is String) {
+      final s = v.replaceAll(',', '').trim();
+      return num.tryParse(s);
+    }
+    return null;
+  }
+
   factory Initiative.fromFirestore(Map<String, dynamic> data, String documentId) {
     return Initiative(
       id: documentId,
@@ -83,8 +94,8 @@ class Initiative {
       gallery: (data['gallery'] as List?)?.map((e) => e.toString()).toList(),
       tags: (data['tags'] as List?)?.map((e) => e.toString()).toList(),
       location: data['location'],
-      goalAmount: data['goalAmount'],
-      raisedAmount: data['raisedAmount'],
+      goalAmount: _toNum(data['goalAmount']),
+      raisedAmount: _toNum(data['raisedAmount']),
       milestones: (data['milestones'] as List?)
           ?.map((e) => Map<String, dynamic>.from(e as Map))
           .toList(),
@@ -95,10 +106,10 @@ class Initiative {
       durationMonths: (data['durationMonths'] is int) ? data['durationMonths'] as int : null,
       teamHead: data['teamHead'],
       teamMembers: (data['teamMembers'] as List?)?.cast<DocumentReference>(),
-      computedRaisedAmount: data['computedRaisedAmount'],
-      reconciledRaisedAmount: data['reconciledRaisedAmount'],
-      manualAdjustmentAmount: data['manualAdjustmentAmount'],
-      computedExecutionPercent: data['computedExecutionPercent'],
+      computedRaisedAmount: _toNum(data['computedRaisedAmount']),
+      reconciledRaisedAmount: _toNum(data['reconciledRaisedAmount']),
+      manualAdjustmentAmount: _toNum(data['manualAdjustmentAmount']),
+      computedExecutionPercent: _toNum(data['computedExecutionPercent']),
       lastComputedAt: data['lastComputedAt'],
     );
   }

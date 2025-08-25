@@ -262,7 +262,7 @@ class _InitiativeFormScreenState extends State<InitiativeFormScreen> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(

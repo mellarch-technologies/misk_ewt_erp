@@ -22,7 +22,7 @@ class StickyActionBar extends StatelessWidget {
         boxShadow: isSticky
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -114,7 +114,7 @@ class FormSection extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(MiskTheme.borderRadiusMedium),
             border: Border.all(
-              color: MiskTheme.miskLightGreen.withOpacity(0.3),
+              color: MiskTheme.miskLightGreen.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -349,7 +349,7 @@ class MediaUploadTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: MiskTheme.miskLightGreen.withOpacity(0.3),
+          color: MiskTheme.miskLightGreen.withValues(alpha: 0.3),
           width: 1,
         ),
         borderRadius: BorderRadius.circular(MiskTheme.borderRadiusMedium),

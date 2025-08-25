@@ -174,7 +174,6 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     VoidCallback? onTap,
     Widget? trailing,
     bool showChevron = false,
-    Color? statusColor,
     Widget? statusBadge,
   }) {
     return ListTile(

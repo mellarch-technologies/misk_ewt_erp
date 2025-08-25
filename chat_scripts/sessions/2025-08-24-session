@@ -1,0 +1,81 @@
+[2025-08-24] Prototype Dashboard review (misk-erp-prototype) and ERP adoption plan
+
+Summary
+- Reviewed prototype (misk-erp-prototype/index.html, app.js, style.css, screen-design-specs.md).
+- Prototype presents: Welcome banner, KPI grid, Latest Donations list, simple nav drawer, and consistent tokens (colors, spacing, badges).
+- Our ERP dashboard already includes: welcome banner, KPI cards with trend badges (Donations/Tasks/Events), skeletons, pull-to-refresh, featured Initiatives/Campaigns, and unified Recent Activities.
+
+Complementary features to adopt (without overwriting design)
+1) Latest Donations card: Dedicated list of top 5 confirmed donations (donor, amount, method, date) next to KPIs.
+2) Welcome banner chips: Add role chip (and optional avatar) aligned with MiskTheme.
+3) KPI consistency: Ensure CommonCard tone matches tokens; keep badges subtle; maintain current layout.
+4) Selector UX: Enhance initiative/campaign dropdowns with search + descriptions (as per design specs), non-blocking.
+5) Initiative progress pattern: We already show financial donut + trend; optionally add execution progress % (later, needs data model).
+
+Notes
+- No overwrites to existing layout; additions fit within current sections:
+  - Insert Latest Donations card under KPI grid (beside Recent Activities or as a compact card above it on narrow screens).
+  - Keep theme colors/tokens from MiskTheme; prototype color tokens mapped conceptually.
+- Risk: small screens need responsive placement and overflow safety. Will use existing CommonCard + ListTiles.
+
+Next (scoped 1–2 days)
+- Implement Latest Donations card (top 5 confirmed, sorted by receivedAt/createdAt).
+- Add role chip in welcome banner.
+- Optional: start searchable dropdowns for Initiative/Campaign selectors.
+
+Here’s my review of your misk-erp-prototype Dashboard and how it can complement your current ERP design:
+Prototype Dashboard Highlights
+Welcome Banner: Prominent greeting, role chip, and time-based message.
+KPI Grid: Shows counts for users, roles, initiatives, campaigns, tasks, events, and donations.
+Latest Donations List: Displays top recent donations with donor, amount, method, and date.
+Consistent Tokens: Uses a well-defined color palette, spacing, border radius, and typography (Poppins).
+Navigation Drawer: Simple, clear access to all modules.
+Sample Data: Realistic user, initiative, campaign, task, and donation examples.
+Comparison & Adoption Plan
+Your current ERP dashboard already implements most of these features:
+Welcome banner, KPI cards, unified Recent Activities feed, skeleton loading, and responsive navigation.
+Shared design tokens and CommonCard/MiskBadge components.
+Complementary features to adopt (not overwrite):
+Latest Donations Card: Already implemented—shows top 5 confirmed donations for transparency.
+Role Chip in Welcome Banner: Add user’s role (and optional avatar) to the greeting for context.
+Initiative/Campaign Selector UX: Enhance selector with search and descriptions for better usability.
+Execution Progress Pattern: Optionally add initiative execution progress (future, needs data model).
+Next Steps
+Continue with the above complementary additions, starting with the role chip in the welcome banner.
+Log this review and adoption plan in your session and project log for traceability.
+<hr></hr>
+Log Update (Session & Project Log)
+Reviewed misk-erp-prototype Dashboard (Perplexity Labs).
+Confirmed most features are already present in ERP.
+Adopted "Latest Donations" card; plan to add role chip in welcome banner and improve selector UX.
+All changes are complementary and do not overwrite existing design.
+If you want to proceed with the next enhancement (role chip in welcome banner), let me know and I’ll implement it end-to-end.
+
+[2025-08-24] Log Update — Prototype Adoption + Role Chip Implemented
+- Logged this conversation: adopt complementary prototype features without overwriting current design.
+- Implemented: Role chip in Dashboard Welcome Banner using PermissionProvider.roleName (shows Super Admin when applicable; hidden for Guest).
+- Verified: Static checks PASS on modified file; only pre-existing benign warnings for unused helper sections.
+- Current prototype-aligned items:
+  - Latest Donations card: Done (top 5 confirmed with donor, amount, method, date).
+  - Role chip in Welcome Banner: Done (this update).
+  - Selector UX (searchable initiative/campaign): Next, non-blocking; will add lightweight search fields.
+- Next (short): Manual QA of Payment Settings E2E + Donations reconciliation; begin selector search UX.
+
+[2025-08-24] Dashboard Backup + Fresh Prototype-Based Rebuild
+- Issue: Persistent RenderFlex overflow not going away in complex grid layouts.
+- Action: Backed up current Dashboard to lib/screens/dashboard_screen_legacy.dart (compiles with placeholder build).
+- Rebuild: Simplified Dashboard per misk-erp-prototype ideas to de-risk layout:
+  - Removed infographics section from Dashboard body.
+  - KPI grid now uses responsive Wrap (2-up on wide, 1-up on very narrow) to avoid overflow.
+  - Recent Activities and My Tasks are list-only (no grid) to remove RenderFlex risk.
+  - Kept Welcome role chip and Latest Donations card.
+- Result: Static check PASS for new Dashboard; legacy backup compiles with unused-import warnings (acceptable for backup).
+- Next: Continue prototype-aligned polish (searchable selectors later; trend visuals optional), then start a fresh chat.
+
+[2025-08-24] Selector UX — Searchable Initiative/Campaign Pickers
+- Implemented searchable selectors on Dashboard: bottom-sheet pickers for Initiative and Campaign with live search and descriptions.
+- Persistence: Saves selected Initiative/Campaign to SharedPreferences; resets Campaign when Initiative changes.
+- Scoped KPIs: Recomputes initiative/campaign-scoped donations trend and task counts on selection.
+- UI: Added compact "Data Scope" card below KPIs; uses shared SearchInput and CommonCard; responsive on narrow widths.
+- Validation: Static checks PASS on modified file; only pre-existing benign warnings (unused imports/infographic fields) remain.
+- Next: Manual QA of Payment Settings E2E + Donations reconciliation; quick pass to reduce leftover analyzer infos.

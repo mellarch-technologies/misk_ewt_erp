@@ -54,6 +54,21 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Add flavors for separate ERP and Public apps
+    flavorDimensions += listOf("env")
+    productFlavors {
+        create("erp") {
+            dimension = "env"
+            applicationId = "com.miskewt.erp"
+            resValue("string", "app_name", "MISK EWT ERP")
+        }
+        create("public") {
+            dimension = "env"
+            applicationId = "com.miskewt.misk"
+            resValue("string", "app_name", "MiSK EWT App")
+        }
+    }
 }
 
 flutter {

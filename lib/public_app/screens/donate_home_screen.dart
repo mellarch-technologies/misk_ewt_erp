@@ -1,6 +1,8 @@
 // lib/public_app/screens/donate_home_screen.dart
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'bank_transfer_screen.dart';
+import 'upi_screen.dart';
 
 class DonateHomeScreen extends StatelessWidget {
   const DonateHomeScreen({super.key});
@@ -19,19 +21,21 @@ class DonateHomeScreen extends StatelessWidget {
               icon: Icons.account_balance,
               title: 'Bank Transfer (NEFT/IMPS) — Recommended',
               subtitle: 'No gateway fees. Get account details and submit your transfer reference.',
-              onTap: () {}, // TODO: implement Bank Transfer flow
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankTransferScreen())),
             ),
             _DonateOption(
               icon: Icons.qr_code_2,
               title: 'UPI (VPA/QR)',
               subtitle: 'Fast and simple. Your bank may charge a small fee.',
-              onTap: () {}, // TODO: implement UPI flow
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpiScreen())),
             ),
             _DonateOption(
               icon: Icons.payment,
               title: 'Razorpay (UPI/Card/Netbanking)',
               subtitle: 'Instant confirmation and receipt. Fees may apply (option to cover fees).',
-              onTap: () {}, // TODO: implement Razorpay flow
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Razorpay flow coming soon')));
+              },
             ),
             const SizedBox(height: MiskTheme.spacingLarge),
             const Text(
@@ -72,4 +76,3 @@ class _DonateOption extends StatelessWidget {
     );
   }
 }
-

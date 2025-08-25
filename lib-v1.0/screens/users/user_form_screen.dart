@@ -142,7 +142,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
               // --- ORGANIZATION INFO ---
               const _FormSectionHeader('Role & Organization'),
               DropdownButtonFormField<DocumentReference>(
-                value: _selectedRoleId,
+                initialValue: _selectedRoleId,
                 decoration: const InputDecoration(labelText: 'Role'),
                 items: _availableRoles
                     .map((role) => DropdownMenuItem(
@@ -188,7 +188,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
               // PROFILE DETAILS
               const _FormSectionHeader('Profile & Status'),
               DropdownButtonFormField<String>(
-                value: _gender,
+                initialValue: _gender,
                 decoration: const InputDecoration(labelText: 'Gender'),
                 items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
                 onChanged: (v) => setState(() => _gender = v),

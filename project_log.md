@@ -753,10 +753,10 @@ Next
 
 ### Summary
 - Restored left navigation shell across devices:
-  - NavigationRail visible on widths ≥ 800px (tablet/desktop).
+  - NavigationRail visible on widths �� 800px (tablet/desktop).
   - Drawer + BottomNavigation on narrow screens to mirror left nav items.
 - Dashboard layout aligned to plan:
-  - Order: Welcome → KPIs → My Tasks → Recent Activities.
+  - Order: Welcome → KPIs ��� My Tasks → Recent Activities.
   - KPIs show two cards per row (fallback to one on very narrow widths) with responsive sizing.
   - Overflow issues fixed via responsive grid and shrink-wrapped lists.
 - Code quality: No analyzer errors; deprecated color APIs updated to withValues; theme tokens used.
@@ -778,23 +778,131 @@ Next
 3) Roles & Permissions UI (2–3 days) → CRUD + guardrails.
 4) Public app foundation (1–2 weeks) → public initiatives/campaigns/donations/events.
 
-## [2025-08-23] Phase 2 — App Bar/Nav Fine-tuning (Step 2)
+## [2025-08-23] Dashboard Polish — Live KPIs, Skeletons, Unified Feed
+
+What
+- DashboardScreen now shows live KPIs and better loading UX:
+  - Counts: Members (users), Initiatives, Campaigns, Open Tasks.
+  - Donations: totals for Confirmed and Reconciled (computed from DonationService one-shot fetch).
+  - Unified Recent Activities feed combining Events/Announcements, Tasks, and Donations (date-sorted, responsive list/grid).
+  - Skeleton loaders for Welcome, KPI cards, My Tasks, and Recent Activities while data loads.
+
+Affected
+- lib/screens/dashboard_screen.dart
+
+Quality Gates
+- Static check on changed file: PASS (no errors). One benign warning (unused _userDesignation field) retained for future use.
+
+Resume Checklist Coverage
+- Tasks form polish + CRUD + delete with re-auth — Already Done (per 2025-08-19 entry).
+- Donations bulk reconcile UI + UX polish — Already Done (per 2025-08-19 entry).
+- Campaigns form optional fields (dates/costs/proposedBy) — Already Done.
+- QA: Payment Settings E2E + Donations reconciliation flow — Pending (manual QA next). Payment Settings screen located at lib/screens/settings/payment_settings_screen.dart.
+
+Next
+- Manual QA: Payment Settings end-to-end and Donations reconciliation flow.
+- Optional: Permission-gate KPI visibility (beyond can_manage_events already applied), and keep expanding Recent Activities sources.
+
+## [2025-08-23] Dashboard Tweaks — Grid Height + Roles KPI
+
+What
+- Increased grid tile height in Dashboard sections to reduce overflow on medium widths:
+  - My Tasks and Recent Activities: SliverGrid childAspectRatio set to 2.2.
+- Added Roles KPI to the KPI grid using RoleProvider; donations totals continue to use CurrencyHelper (L/Cr formatting).
+
+Files
+- lib/screens/dashboard_screen.dart
+
+Validation
+- Static check on modified file: PASS (only benign `_userDesignation` unused warning remains).
+
+Next
+- Convert KPI cards to CommonCard visuals and add trend badges/sparklines.
+- Manual QA: Payment Settings E2E + Donations reconciliation flow.
+
+## [2025-08-24] Parallel Plan Confirmation (80/20) + Holistic Public App
+- Plan locked: proceed in parallel — 80% effort on ERP fixes/tweaks, 20% on Public app foundation.
+- Public app scope confirmed as holistic (not donations-only): initiatives/campaigns browsing, events/announcements, updates/news, transparent progress, donor flows (Bank/UPI/Razorpay), optional volunteer/contact.
+- Drift control: docs/CHAT_BOOTSTRAP.md + docs/RUN_CONFIGS.md + session logs ensure seamless resume across chats.
+- Immediate ERP focus: Payment Settings E2E manual QA; Donations reconciliation polish; stability fixes only.
+- Immediate Public focus: Firebase init wiring for Public, pending-donation writes + rules, Payment Settings read for Bank/UPI screens.
+
+## [2025-08-24] RenderFlex Mitigation, Cards Fixes, Public Pending Donations, Rules
 
 What changed
-- AppShell: brand-only AppBar now includes right-side actions (notifications placeholder + avatar menu with Profile/Logout).
-- Drawer: grouped into Core / Operations / Settings with section labels and dividers; Users present.
-- Persistence: last selected tab saved to SharedPreferences and restored on relaunch.
-- Permission gating: nav visibility wired (Users requires can_manage_users; Super Admin overrides). While permissions load, all items are shown to avoid flicker.
-- Mobile footer nav: Material 3 NavigationBar for primary tabs (Dashboard, Users, Tasks, Donations); remaining items in Drawer.
-- ContentHeader rollout: UsersListScreen now uses ContentHeader like other list/settings screens, keeping page titles out of the AppBar.
+- CampaignCard: fixed analyzer tail errors and RenderFlex overflow in non-compact layout.
+  - Non-compact branch now uses Expanded + SingleChildScrollView beneath the image, preventing bottom overflows on short/tight grids.
+  - Compact branch retained; progress math safe; consistent Colors.grey.shade700.
+- InitiativeCard: bracket/paren cleanup, progress NaN/Infinity guard, numeric parsing hardened in Initiative model.
+- Public app: implemented pending donation writes to public_pending_donations with validation and server timestamps.
+- Firestore security rules: added strict unauthenticated create to public_pending_donations; admins can read/update/delete.
+- UI polish: replaced deprecated withOpacity(...) with withValues(alpha: ...) in shared widgets (form_components, sticky_filters).
 
-Acceptance checks
-- Single AppBar globally (brand-first), no duplicate AppBars on in-shell screens.
-- Page titles rendered via ContentHeader across main screens.
-- Nav is consistent (rail on wide, Drawer + bottom nav on narrow), with permission-based visibility.
-- No analyzer errors on modified files (minor unused field warning in AppShell: _titles).
+Validation
+- Static checks: initiative_card.dart, campaign_card.dart, form_components.dart, sticky_filters.dart — PASS (no syntax errors).
+- RenderFlex: non-compact CampaignCard no longer overflows (content scrolls); InitiativeCard already uses scroll within cards.
 
-Next (Step 3)
-- Optional micro-polish: nav tooltips on collapsed rail; small counters (e.g., My tasks) on nav items.
-- Dashboard: live KPIs + My Tasks + Recent Activities with skeletons and permission-based visibility.
-- Roles UI: consider gating access points from Settings and enforcing in UI.
+Notes
+- Analyzer still reports non-blocking infos/warnings in assorted screens (e.g., use_build_context_synchronously) — deferred.
+- Public donation flow: Bank/UPI forms submit pending docs; settings read from settings/payments; Razorpay deferred.
+
+Next steps (handoff)
+- ERP: quick pass on dashboard and list screens for any residual overflows; tighten a few use_build_context_synchronously infos.
+- Public: generate public_firebase_options.dart and switch init in public_main.dart; optional: Razorpay order/webhook.
+- Optional UI: tune CampaignCard image height (90 → 72) if very small devices still show tight layouts.
+
+## [2025-08-24] Prototype Dashboard review & adoption plan
+- Reviewed misk-erp-prototype (index.html, app.js, style.css, screen-design-specs.md).
+- Prototype highlights: welcome banner, KPI grid, Latest Donations list, simple nav drawer, consistent tokens and badges.
+- Our dashboard already has welcome banner, KPI with trend badges, skeletons, pull-to-refresh, featured Initiatives/Campaigns, unified Recent Activities.
+- Complementary, non-overwriting additions planned:
+  1) Latest Donations card (top 5 confirmed: donor, amount, method, date).
+  2) Role chip in welcome banner (and optional avatar later).
+  3) Improve initiative/campaign selector UX with search + descriptions.
+  4) Optional: execution progress pattern for initiatives (future; needs data model).
+- Next 1–2 days: implement (1) and (2), start (3) as non-blocking.
+## [2025-08-24] Prototype Alignment — Welcome Role Chip + Dashboard Infographics
+- Adopted complementary items from misk-erp-prototype without overwriting layout.
+- Implemented role chip in Dashboard welcome banner using PermissionProvider.roleName; hidden for Guest; styled for gradient header.
+- Surfaced existing initiative/campaign infographics section on Dashboard below KPIs to remove unused warnings and align with prototype narrative.
+- Static check: PASS on modified files; only pre-existing benign infos/warnings elsewhere.
+- Next (1–2 days): searchable initiative/campaign selectors on Dashboard; manual QA for Payment Settings E2E and Donations reconciliation flow.
+
+## [2025-08-24] Dashboard Backup + Prototype-Based Simplification
+- Problem: Persistent RenderFlex overflow in complex grid layouts on Dashboard.
+- Action: Backed up current Dashboard to lib/screens/dashboard_screen_legacy.dart (compiles with placeholder build).
+- Rework: Simplified Dashboard per misk-erp-prototype to de-risk layout:
+  - KPI grid switched to responsive Wrap (2-up/1-up) instead of GridView.
+  - Recent Activities and My Tasks rendered as list-only (removed grid variant).
+  - Removed infographics section from Dashboard body for now.
+  - Kept Welcome role chip and Latest Donations card.
+- Status: Static check PASS on new Dashboard; legacy backup has only unused-import warnings (acceptable for backup).
+- Next: Prototype-aligned polish (searchable selectors), then fresh chat for next phase.
+
+## [2025-08-24] Selector UX — Searchable Initiative/Campaign Pickers (ERP)
+- Dashboard: Added "Data Scope" card with searchable Initiative and Campaign pickers (bottom sheets with SearchInput).
+- Persistence: Stores selected Initiative/Campaign in SharedPreferences; resets Campaign when Initiative changes.
+- KPIs: Recomputes initiative/campaign-scoped donations trend and task counts on change.
+- Code: lib/screens/dashboard_screen.dart updated; no breaking API changes.
+- Validation: Static checks show no errors; only benign warnings remain (unused imports and infographic fields from legacy/placeholder code).
+- Next: Manual QA for Payment Settings E2E and Donations reconciliation; trim leftover analyzer infos.
+
+## [2025-08-25] Accepted: MISK Dashboard v1 — Scope-Lite
+
+Summary
+- First accepted Dashboard version locked. Name: "MISK Dashboard v1 — Scope-Lite".
+- Clean counts KPIs at top.
+- Scoped KPIs card with bottom-sheet pickers (Initiative + optional Campaign), showing Goal/Confirmed/Reconciled/% of Goal.
+- Tasks card: Admin/Trustee/Super Admin can view All with toggle to "My tasks only"; non-admins see only own tasks.
+- Latest Donation card (donor • method • amount • date).
+- Upcoming Events (next 3) with preparation progress derived from related tasks.
+- Recent Activities unified feed (donations + events/announcements).
+
+Notes
+- RenderFlex issues mitigated by simplified layout (Wrap + Cards). Any residual overflow to be handled case-by-case.
+
+Branching (local)
+- Create and push branch for this accepted version:
+  - git checkout -b feature/dashboard_v1_scope_lite_2025_08_25
+  - git add -A && git commit -m "feat(dashboard): accept MISK Dashboard v1 — scope-lite (KPIs, tasks toggle, latest donation, upcoming events, recent activities)"
+  - git push -u origin feature/dashboard_v1_scope_lite_2025_08_25

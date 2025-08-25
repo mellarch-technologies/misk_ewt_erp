@@ -48,7 +48,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 onSaved: (v) => _description = v,
               ),
               DropdownButtonFormField<String>(
-                value: _status,
+                initialValue: _status,
                 items: ['pending', 'in_progress', 'completed']
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                     .toList(),

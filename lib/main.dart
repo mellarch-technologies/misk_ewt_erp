@@ -31,6 +31,7 @@ import 'screens/tasks/task_form_screen.dart';
 import 'screens/events_announcements/events_announcements_list_screen.dart';
 import 'screens/events_announcements/event_announcement_form_screen.dart';
 import 'screens/security/app_lock_screen.dart';
+import 'screens/dashboard_v2_screen.dart';
 import 'widgets/app_shell.dart';
 import 'widgets/snackbar_helper.dart';
 
@@ -58,41 +59,31 @@ class MiskEwtErpApp extends StatelessWidget {
         // App Lock provider with async load
         ChangeNotifierProvider(create: (_) => AppLockProvider()..load()),
       ],
-      child: AppLifecycleWatcher(
-        child: MaterialApp(
-          title: 'MISK Mini ERP',
-          debugShowCheckedModeBanner: false,
-          theme: MiskTheme.lightTheme,
-          routes: {
-            '/login': (_) => const LoginScreen(),
-            // Ensure dashboard route loads the shell (left nav) instead of a standalone screen
-            '/dashboard': (_) => AppShell(key: AppShell.shellKey),
-            '/users_list': (_) => const UsersListScreen(),
-            '/users': (_) => const UsersListScreen(),
-            '/users/form': (_) => const UserFormScreen(),
-            '/roles': (_) => const RolesListScreen(),
-            '/roles/form': (_) => const RoleFormScreen(),
-            '/settings': (_) => const GlobalSettingsScreen(),
-            '/initiatives': (_) => InitiativesListScreen(),
-            '/initiatives/form': (_) => InitiativeFormScreen(),
-            '/campaigns': (_) => CampaignsListScreen(),
-            '/campaigns/form': (_) => CampaignFormScreen(),
-            '/tasks': (_) => TasksListScreen(),
-            '/tasks/form': (_) => TaskFormScreen(),
-            '/events_announcements': (_) => EventsAnnouncementsListScreen(),
-            '/events_announcements/form': (_) => EventAnnouncementFormScreen(),
-          },
-          home: const AuthWrapper(),
-          builder: (context, child) {
-            // Global activity tracking for idle timeout
-            return Listener(
-              behavior: HitTestBehavior.translucent,
-              onPointerDown: (_) => context.read<AppLockProvider>().recordActivity(),
-              onPointerMove: (_) => context.read<AppLockProvider>().recordActivity(),
-              child: child!,
-            );
-          },
-        ),
+      child: MaterialApp(
+        title: 'MISK ERP',
+        theme: MiskTheme.lightTheme,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const AppShell(),
+          '/login': (_) => const LoginScreen(),
+          // Ensure dashboard route loads the shell (left nav) instead of a standalone screen
+          '/dashboard': (_) => AppShell(key: AppShell.shellKey),
+          '/dashboard_v2': (context) => const DashboardV2Screen(), // Labs route
+          '/users_list': (_) => const UsersListScreen(),
+          '/users': (_) => const UsersListScreen(),
+          '/users/form': (_) => const UserFormScreen(),
+          '/roles': (_) => const RolesListScreen(),
+          '/roles/form': (_) => const RoleFormScreen(),
+          '/settings': (_) => const GlobalSettingsScreen(),
+          '/initiatives': (_) => InitiativesListScreen(),
+          '/initiatives/form': (_) => InitiativeFormScreen(),
+          '/campaigns': (_) => CampaignsListScreen(),
+          '/campaigns/form': (_) => CampaignFormScreen(),
+          '/tasks': (_) => TasksListScreen(),
+          '/tasks/form': (_) => TaskFormScreen(),
+          '/events_announcements': (_) => EventsAnnouncementsListScreen(),
+          '/events_announcements/form': (_) => EventAnnouncementFormScreen(),
+        },
       ),
     );
   }

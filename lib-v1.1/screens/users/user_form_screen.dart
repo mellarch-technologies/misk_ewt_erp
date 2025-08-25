@@ -211,7 +211,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 const Center(child: CircularProgressIndicator())
               else
                 DropdownButtonFormField<String>(
-                  value: (_selectedRoleDocId != null &&
+                  initialValue: (_selectedRoleDocId != null &&
                       _availableRoles.any((r) => r.id == _selectedRoleDocId))
                       ? _selectedRoleDocId
                       : null,

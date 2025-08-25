@@ -10,6 +10,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/filter_bar.dart';
 import '../../widgets/search_input.dart';
 import '../../widgets/content_header.dart';
+import '../../widgets/pagination_bar.dart';
 
 class InitiativesListScreen extends StatefulWidget {
   const InitiativesListScreen({super.key, this.inShell = false});
@@ -21,6 +22,8 @@ class InitiativesListScreen extends StatefulWidget {
 
 class _InitiativesListScreenState extends State<InitiativesListScreen> {
   final _searchController = TextEditingController();
+  int _pageIndex = 0;
+  static const int _pageSize = 20;
 
   @override
   void initState() {
@@ -50,7 +53,10 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
           return FilterChip(
             label: Text(c),
             selected: selected,
-            onSelected: (_) => provider.toggleCategory(c),
+            onSelected: (_) {
+              provider.toggleCategory(c);
+              setState(() => _pageIndex = 0);
+            },
           );
         }),
         Row(
@@ -58,7 +64,10 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
           children: [
             Switch(
               value: provider.publicOnly,
-              onChanged: provider.setPublicOnly,
+              onChanged: (v) {
+                provider.setPublicOnly(v);
+                setState(() => _pageIndex = 0);
+              },
             ),
             const SizedBox(width: 8),
             const Text('Public only'),
@@ -72,6 +81,7 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
             }
             if (provider.publicOnly) provider.setPublicOnly(false);
             _searchController.clear();
+            setState(() => _pageIndex = 0);
           },
           icon: const Icon(Icons.clear_all),
           label: const Text('Clear'),
@@ -97,7 +107,10 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
             child: SearchInput(
               controller: _searchController,
               hintText: 'Search initiatives...',
-              onChanged: (v) => context.read<InitiativeProvider>().setFilter(v),
+              onChanged: (v) {
+                context.read<InitiativeProvider>().setFilter(v);
+                setState(() => _pageIndex = 0);
+              },
             ),
           ),
           Padding(
@@ -107,6 +120,24 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
             ),
           ),
           const SizedBox(height: MiskTheme.spacingSmall),
+          // Pagination (top)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MiskTheme.spacingMedium),
+            child: Consumer<InitiativeProvider>(
+              builder: (context, provider, _) {
+                final total = provider.initiatives.length;
+                final pageCount = (total / _pageSize).ceil();
+                final safeIndex = total == 0 ? 0 : _pageIndex.clamp(0, pageCount - 1);
+                if (safeIndex != _pageIndex) WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => _pageIndex = safeIndex));
+                return PaginationBar(
+                  total: total,
+                  pageSize: _pageSize,
+                  pageIndex: safeIndex,
+                  onPageChanged: (p) => setState(() => _pageIndex = p),
+                );
+              },
+            ),
+          ),
           Expanded(
             child: Consumer<InitiativeProvider>(
               builder: (context, provider, _) {
@@ -131,14 +162,23 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
                   );
                 }
 
+                // Apply pagination slice
+                final total = items.length;
+                final pageCount = (total / _pageSize).ceil();
+                final safeIndex = total == 0 ? 0 : _pageIndex.clamp(0, pageCount - 1);
+                final start = safeIndex * _pageSize;
+                final end = (start + _pageSize) > total ? total : (start + _pageSize);
+                final visible = items.sublist(start, end);
+
                 return RefreshIndicator(
                   onRefresh: provider.fetchInitiatives,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final width = constraints.maxWidth;
                       int crossAxisCount = 1;
-                      if (width >= 1200) crossAxisCount = 4;
-                      else if (width >= 900) crossAxisCount = 3;
+                      if (width >= 1200) {
+                        crossAxisCount = 4;
+                      } else if (width >= 900) crossAxisCount = 3;
                       else if (width >= 600) crossAxisCount = 2;
 
                       return GridView.builder(
@@ -152,9 +192,9 @@ class _InitiativesListScreenState extends State<InitiativesListScreen> {
                           mainAxisSpacing: MiskTheme.spacingSmall,
                           childAspectRatio: 1.1,
                         ),
-                        itemCount: provider.initiatives.length,
+                        itemCount: visible.length,
                         itemBuilder: (context, i) {
-                          final initiative = items[i];
+                          final initiative = visible[i];
                           return InitiativeCard(
                             initiative: initiative,
                             onTap: () async {

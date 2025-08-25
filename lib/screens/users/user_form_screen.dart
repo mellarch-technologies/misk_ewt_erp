@@ -399,7 +399,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
           : 'users/pending/$nowTs/photos';
       final url = await repo.upload(
         compressed,
-        fileName: 'user_${nowTs}.jpg',
+        fileName: 'user_$nowTs.jpg',
         mimeType: 'image/jpeg',
         directory: userFolder,
       );

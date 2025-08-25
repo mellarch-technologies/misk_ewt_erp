@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "125324024672",
+    "project_id": "misk-edu-and-welfare-trust",
+    "storage_bucket": "misk-edu-and-welfare-trust.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125324024672:android:b2f3667f0636880fe21c05",
+        "android_client_info": {
+          "package_name": "com.miskewt.erp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTJbMGjDfceY78ukuptBbssLNHZJn13kg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125324024672:android:1ed3a10609cc8bbfe21c05",
+        "android_client_info": {
+          "package_name": "com.miskewt.misk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTJbMGjDfceY78ukuptBbssLNHZJn13kg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

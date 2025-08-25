@@ -1,0 +1,688 @@
+# MISK EWT ERP - Comprehensive Screen Design Specifications for GitHub Copilot
+
+## Overview
+This document provides complete screen design specifications for the MISK EWT ERP Flutter application, incorporating repository analysis and UI/UX improvements. Use these specifications with GitHub Copilot to implement consistent, production-ready screens.
+
+## Design System Foundation
+
+### Color Palette
+```dart
+// MISK Brand Colors - Use these consistently
+static const Color miskGold = Color(0xFFDAA520); // Primary
+static const Color miskDarkGreen = Color(0xFF2F5233); // Secondary  
+static const Color miskLightGreen = Color(0xFF4A7C59); // Tertiary
+static const Color miskCream = Color(0xFFFDF6E3); // Background
+static const Color miskTextDark = Color(0xFF2C2C2C); // Text
+static const Color miskWhite = Color(0xFFFFFFFF); // Pure white
+static const Color miskErrorRed = Color(0xFFD32F2F); // Error states
+```
+
+### Typography Scale
+```dart
+// Use Poppins font family consistently
+displayLarge: 32px, FontWeight.bold, miskDarkGreen
+displayMedium: 28px, FontWeight.bold, miskDarkGreen  
+displaySmall: 24px, FontWeight.w600, miskDarkGreen
+headlineLarge: 22px, FontWeight.bold, miskTextDark
+headlineMedium: 20px, FontWeight.w600, miskTextDark
+headlineSmall: 18px, FontWeight.w600, miskTextDark
+bodyLarge: 16px, FontWeight.normal, miskTextDark
+bodyMedium: 14px, FontWeight.normal, miskTextDark
+bodySmall: 12px, FontWeight.normal, miskTextDark.withOpacity(0.7)
+```
+
+### Spacing Tokens
+```dart
+spacingXSmall = 4.0
+spacingSmall = 8.0  
+spacingMedium = 16.0
+spacingLarge = 24.0
+spacingXLarge = 32.0
+```
+
+### Border Radius
+```dart
+borderRadiusSmall = 8.0
+borderRadiusMedium = 12.0
+borderRadiusLarge = 16.0
+borderRadiusXLarge = 20.0
+```
+
+## Navigation Architecture
+
+### App Shell Structure
+```markdown
+IMPLEMENTATION: AppShell with IndexedStack
+- Bottom navigation on mobile (<768px width)
+- Navigation rail on desktop (>=768px width)
+- Tabs: Dashboard, Initiatives, Campaigns, Donations, Settings
+- Preserve tab state with IndexedStack
+- Drawer available on all screens for secondary navigation
+```
+
+## Screen Inventory & Specifications
+
+### 1. Authentication Screens
+
+#### Login Screen
+```markdown
+COPILOT PROMPT:
+Create a LoginScreen with these specifications:
+- Center-aligned form with MISK logo at top
+- Email and password TextFormFields with validation
+- "Remember Me" checkbox and "Forgot Password" link
+- Primary ElevatedButton "Sign In" with loading state
+- Google Sign-In button as secondary option
+- Apply MiskTheme colors and spacing tokens
+- Add autofillHints for email/password
+- Submit on keyboard "done" action
+- Show SnackBar for login errors with retry
+- Navigate to AppShell (not direct Dashboard) on success
+```
+
+#### Forgot Password Screen  
+```markdown
+COPILOT PROMPT:
+Create ForgotPasswordScreen with:
+- Back button in AppBar
+- Email input with validation
+- "Send Reset Link" button with loading states
+- Success message with "Back to Login" navigation
+- Error handling with user-friendly messages
+- Apply consistent theming and spacing
+```
+
+#### App Lock Screen
+```markdown
+COPILOT PROMPT:  
+Create AppLockScreen with:
+- PIN entry keypad (0-9 digits)
+- Biometric unlock button when available
+- "Forgot PIN?" link to re-authenticate with password
+- Shake animation on wrong PIN
+- Auto-lock after failed attempts
+- Support both light/dark themes
+- Use local_auth package for biometrics
+```
+
+### 2. Dashboard Screen
+
+#### Main Dashboard
+```markdown
+COPILOT PROMPT:
+Create enhanced Dashboard with these components:
+- WelcomeBanner at top with user name, role chip, and time-based greeting
+- KPI cards in responsive grid (2 cols mobile, 3-4 cols tablet/desktop):
+  * Users count, Roles count, Initiatives count, Campaigns count
+  * Tasks count, Events count, Donations total (formatted in Lakhs/Crores)
+  * Each card shows number, icon, title, and optional trend indicator
+- Pull-to-refresh functionality
+- Skeleton loading states for KPI cards
+- AppBar with notifications icon and user avatar
+- Navigation drawer with all modules
+- Use CommonCard widget for KPI cards
+- Apply MiskTheme spacing and colors consistently
+```
+
+### 3. User Management Screens
+
+#### Users List Screen
+```markdown
+COPILOT PROMPT:
+Create UsersListScreen with:
+- SearchInput widget at top for filtering by name/email
+- FilterBar with role filter dropdown
+- User cards using CommonCard with:
+  * Circular avatar with user initials (colored background)
+  * Name (headlineSmall) and email (bodyMedium)
+  * MiskBadge chips for: designation, status (active/inactive), joined date
+  * Tap to edit, overflow menu with Edit/Delete options
+- Delete requires re-authentication via SecurityService
+- Pull-to-refresh and empty states
+- FAB for "Add User"
+- Loading skeleton for each card while fetching
+```
+
+#### User Form Screen
+```markdown
+COPILOT PROMPT:
+Create UserFormScreen with sectioned form:
+SECTION 1 - Basic Information:
+- Name, Email, Phone (required fields)
+- Designation dropdown, Department text field
+
+SECTION 2 - Account Settings:  
+- Role assignment dropdown (load from RoleProvider)
+- Status toggle (Active/Inactive)
+- Gender selection (affects photo upload permissions)
+
+SECTION 3 - Photo & Profile:
+- Profile photo with three options:
+  * Generated avatar (ui-avatars.com)
+  * Custom photo URL input
+  * Upload photo button (when enabled)
+- Photo preview in circular avatar
+
+FORM VALIDATION:
+- Email format validation
+- Required field highlighting
+- Save button disabled until valid
+- Show loading states during save
+- Success SnackBar on save with navigation back
+```
+
+### 4. Role & Permission Management
+
+#### Roles List Screen
+```markdown
+COPILOT PROMPT:
+Create RolesListScreen with:
+- Search functionality for role names
+- Role cards with CommonCard containing:
+  * Role name (headlineMedium) 
+  * Description (bodyMedium, max 2 lines)
+  * MiskBadge for "Protected" system roles
+  * Permission count (e.g., "12 permissions")
+  * Created/updated info (bodySmall)
+- Protected roles show lock icon and disabled delete
+- Tap to edit, overflow menu for Edit/Delete
+- Delete requires re-authentication
+- Empty state when no roles
+- FAB for "Add Role"
+```
+
+#### Role Form Screen
+```markdown
+COPILOT PROMPT:
+Create RoleFormScreen with:
+SECTION 1 - Role Details:
+- Role name (required)
+- Description (optional, multiline)
+- Protected toggle (disabled for existing protected roles)
+
+SECTION 2 - Permissions:
+- Load available permissions from PermissionProvider
+- Group permissions by module (Users, Roles, Initiatives, etc.)
+- Expandable sections for each module
+- Checkboxes for each permission with descriptions
+- "Select All" toggle for each module
+
+FORM BEHAVIOR:
+- Validate role name uniqueness
+- Show permission changes summary
+- Audit fields (created/updated by/at) readonly
+- Re-auth required for protected role changes
+- Success feedback with list refresh
+```
+
+### 5. Initiatives Management
+
+#### Initiatives List Screen
+```markdown
+COPILOT PROMPT:
+Create InitiativesListScreen with:
+- FilterBar with category chips and "Public only" toggle
+- Initiative cards with CommonCard containing:
+  * Large initiative letter/icon on left
+  * Title (headlineMedium) and description (bodyMedium, 2 lines max)
+  * MiskBadge chips for: status (active/paused), category, featured
+  * Progress section:
+    - Financial progress bar with percentage
+    - "₹X.X L raised of ₹Y L goal" text
+    - Execution progress from milestones
+  * Location and date info (bodySmall)
+- Cards show proper loading states
+- Search by title/description
+- Pull-to-refresh
+- FAB for "Add Initiative"
+```
+
+#### Initiative Detail Screen
+```markdown
+COPILOT PROMPT:  
+Create InitiativeDetailScreen with:
+HEADER SECTION:
+- Title with status and featured badges
+- Description (expandable if long)
+- Location, dates, goal amount
+
+PROGRESS SECTION:
+- Financial Progress card:
+  * Confirmed donations progress bar (green)
+  * Bank reconciled progress bar (blue)
+  * Values in Indian format (₹X.X Lakhs/Crores)
+- Execution Progress card:  
+  * Overall execution percentage from milestones
+  * Individual milestone list with progress bars
+
+ACTIONS:
+- "View Donations" primary button
+- AppBar menu with "Recompute Totals", "Edit", "Share"
+- Milestones section showing title and completion %
+
+Apply consistent spacing and use theme colors
+```
+
+#### Initiative Form Screen
+```markdown
+COPILOT PROMPT:
+Create InitiativeFormScreen with comprehensive form:
+SECTION 1 - Basic Details:
+- Title, Description (multiline)
+- Category dropdown, Location
+- Status selection, Priority level
+
+SECTION 2 - Financial:
+- Goal amount (Indian currency format with ₹ prefix)
+- Currency selector (default INR)
+- Public visibility toggle
+
+SECTION 3 - Timeline:
+- Start date picker, End date picker (optional)
+- "No end date" checkbox
+
+SECTION 4 - Milestones:
+- Dynamic milestone list with Add/Remove
+- Each milestone: Title, Target percentage
+- Drag to reorder milestones
+
+SECTION 5 - Media & Visibility:
+- Cover photo upload/URL input
+- Featured toggle
+- Public app visibility settings
+
+Form validation, save/cancel actions, proper error handling
+```
+
+### 6. Campaigns Management  
+
+#### Campaigns List Screen
+```markdown
+COPILOT PROMPT:
+Create CampaignsListScreen with:
+- FilterBar with type chips (online/offline), category, "Public only" toggle
+- Campaign cards with CommonCard:
+  * Title (headlineMedium) and description (bodyMedium)
+  * MiskBadge chips for: type, status, featured
+  * Initiative link chip (resolve DocumentReference to name)
+  * Goal amount and raised amount (if fundraising campaign)
+  * Progress bar for fundraising campaigns
+  * Dates and proposed by info
+- Search by title/description  
+- Initiative filter dropdown
+- Responsive filter layout (stack on narrow screens)
+- Empty/error states, pull-to-refresh
+```
+
+#### Campaign Form Screen  
+```markdown
+COPILOT PROMPT:
+Create CampaignFormScreen with:
+SECTION 1 - Campaign Details:
+- Name, Description (multiline)
+- Type dropdown (fundraising, awareness, event, etc.)
+- Category selection
+
+SECTION 2 - Linking:
+- Initiative dropdown (required)
+- Link to existing tasks (optional)
+
+SECTION 3 - Goals & Timeline:
+- Goal amount (for fundraising campaigns)
+- Start date, End date pickers
+- "No end date" checkbox
+
+SECTION 4 - Ownership & Costs:
+- Proposed by (email input with validation)
+- Estimated cost field
+- Budget breakdown (optional)
+
+SECTION 5 - Media & Visibility:
+- Banner upload/URL
+- Poster upload/URL  
+- Public visibility toggle
+- Featured toggle
+
+Conditional field visibility based on campaign type
+```
+
+### 7. Tasks Management
+
+#### Tasks List Screen
+```markdown
+COPILOT PROMPT:
+Create TasksListScreen with:
+- FilterBar with:
+  * Status dropdown (All, Pending, In Progress, Completed, Blocked)
+  * "My tasks" toggle (filter by assignedTo current user)
+  * Priority filter
+- Task cards with CommonCard:
+  * Title (headlineMedium) and description preview
+  * MiskBadge chips for: status, priority, type
+  * Assignment info with user avatar/name
+  * Due date with overdue highlighting
+  * Linked campaign/initiative chips
+  * Progress bar (if percentage available)
+- Search by title/description/assignee
+- Swipe actions: left to complete, right to edit
+- Bulk selection mode with status update
+- Sort options: due date, priority, status
+```
+
+#### Task Form Screen
+```markdown
+COPILOT PROMPT:
+Create TaskFormScreen with:
+SECTION 1 - Task Details:
+- Title (required), Description (multiline)
+- Priority selection (Low, Normal, High, Critical)
+- Category/Type dropdown
+
+SECTION 2 - Assignment:
+- Assignee selection (user dropdown)
+- Reporter (current user, readonly)
+- Due date picker
+
+SECTION 3 - Progress:
+- Status dropdown
+- Completion percentage slider
+- Estimated hours, Logged hours
+
+SECTION 4 - Linking:
+- Link to Initiative (optional)
+- Link to Campaign (optional)
+- Dependencies (other tasks)
+
+SECTION 5 - Attachments:
+- File upload/URL inputs
+- Comments section
+
+Status-based field enabling, validation, audit trail
+```
+
+### 8. Donations Management
+
+#### Donations List Screen
+```markdown
+COPILOT PROMPT:
+Create DonationsListScreen with advanced filtering:
+- FilterBar with:
+  * Initiative dropdown filter
+  * Campaign dropdown (filtered by initiative)
+  * Method dropdown (Bank Transfer, UPI, Razorpay, Cash)
+  * Status dropdown (All, Pending, Confirmed)
+  * "Unreconciled" toggle
+  * Date range picker
+
+- Donation cards with CommonCard:
+  * Donor name (headlineMedium) and amount (right-aligned, bold)
+  * Date/time and reference ID
+  * MiskBadge chips for: initiative, campaign, method, status
+  * Bank reconciliation status
+  * Quick action buttons: Mark Confirmed, Toggle Reconciled
+
+- Bulk actions:
+  * "Mark X filtered as reconciled" button
+  * Confirmation dialog with scope summary
+  * Undo functionality via SnackBar
+
+- Search by donor name/email/reference
+- Currency formatting (₹X.X L/Cr)
+- Real-time total calculations
+```
+
+#### Donations Entry Screen
+```markdown
+COPILOT PROMPT:
+Create DonationsEntryScreen as picker:
+- Initiative selection (required)
+- Campaign selection (optional, filtered by initiative)  
+- "Show all donations" vs "Filter by selection"
+- Navigate to DonationsListScreen with filters applied
+- Recent donations summary
+- Quick stats (total confirmed, pending reconciliation)
+```
+
+### 9. Events & Announcements
+
+#### Events List Screen
+```markdown
+COPILOT PROMPT:
+Create EventsAnnouncementsListScreen with:
+- FilterBar with type dropdown, date range, "Public only" toggle
+- Event cards with CommonCard:
+  * Title (headlineMedium) and description preview
+  * MiskBadge chips for: type, status, public/featured
+  * Date/time with calendar icon
+  * Location (if applicable)
+  * Initiative link chip
+  * RSVP count (if event type)
+- Calendar view toggle option
+- Search by title/description/location
+- Sort by date (ascending/descending)
+```
+
+#### Event Form Screen
+```markdown
+COPILOT PROMPT:
+Create EventAnnouncementFormScreen with:
+SECTION 1 - Event Details:
+- Title, Description (rich text)
+- Type selection (Event, Announcement, Update)
+- Category dropdown
+
+SECTION 2 - Schedule:
+- Start date/time picker
+- End date/time picker (for events)
+- All-day event toggle
+- Time zone selection
+
+SECTION 3 - Location & Access:
+- Venue/Location (for events)
+- Virtual meeting link (optional)
+- Public visibility settings
+- Featured toggle
+
+SECTION 4 - Linking:
+- Initiative association (optional)
+- Target audience selection
+
+SECTION 5 - Media:
+- Event poster upload/URL
+- Additional attachments
+
+Conditional fields based on event type
+```
+
+### 10. Settings Screens
+
+#### Global Settings Screen
+```markdown
+COPILOT PROMPT:
+Create GlobalSettingsScreen with organized sections:
+SECTION 1 - Access & Security:
+- "Roles & Permissions" → RolesListScreen
+- "Security & App Lock" → SecuritySettingsScreen
+
+SECTION 2 - Payments:
+- "Payment Settings" → PaymentSettingsScreen
+- Bank details configuration
+
+SECTION 3 - System:
+- "Uploads Backend" with health check button
+- "Recompute Roll-ups" with confirmation dialog
+- App version and build info
+
+Each item shows description, last modified, and appropriate icons
+Add search functionality for settings items
+```
+
+#### Payment Settings Screen  
+```markdown
+COPILOT PROMPT:
+Create PaymentSettingsScreen with:
+SECTION 1 - Bank Transfer:
+- Account name, number, IFSC code
+- Branch name, bank name
+- QR code generation option
+
+SECTION 2 - UPI Configuration:
+- UPI VPA/ID input
+- UPI QR code upload/generate
+- Fee notification settings
+
+SECTION 3 - Razorpay Integration:
+- API key configuration
+- Webhook URL settings
+- Fee handling options
+
+SECTION 4 - Recommendations:
+- Minimum amount for bank transfer preference
+- UPI fee notification text
+- "Cover fees" toggle default
+
+All fields properly validated, encrypted storage for sensitive data
+```
+
+#### Security Settings Screen
+```markdown
+COPILOT PROMPT:
+Create SecuritySettingsScreen with:
+SECTION 1 - App Lock:
+- Enable/disable toggle with re-authentication
+- PIN setup/change (requires current PIN)
+- Biometric toggle (when available)
+
+SECTION 2 - Session Management:
+- Idle timeout selection (1min, 5min, 15min, 30min, Never)
+- Auto-lock on app backgrounding toggle
+- Force logout on all devices button
+
+SECTION 3 - Audit:
+- Recent login activity list
+- Security events log
+- Export security report
+
+Re-authentication required for all sensitive changes
+```
+
+## Shared Components Specifications
+
+### CommonCard
+```markdown
+COPILOT PROMPT:
+Create CommonCard widget with:
+- Consistent padding (MiskTheme.spacingMedium)
+- Border radius (borderRadiusLarge)
+- Elevation (elevationMedium)
+- Optional border color
+- Tap ripple effect
+- Loading state overlay
+- Error state styling
+```
+
+### MiskBadge  
+```markdown
+COPILOT PROMPT:
+Create MiskBadge widget with:
+- Variants: neutral, success, warning, info, error
+- Consistent height (28dp)
+- Proper text contrast for accessibility
+- Icon support (optional leading icon)
+- Semantic color mapping to status types
+```
+
+### FilterBar
+```markdown
+COPILOT PROMPT:
+Create FilterBar widget with:
+- Responsive layout (wrap on narrow screens)
+- Consistent spacing between filter elements
+- Active filter indicators
+- Clear filters functionality
+- Search input integration
+```
+
+### SearchInput
+```markdown
+COPILOT PROMPT:
+Create SearchInput widget with:
+- Consistent styling across all screens
+- Search icon, clear button
+- Debounced input handling
+- Placeholder text customization
+- Focus management
+```
+
+## Implementation Guidelines
+
+### Error Handling
+```markdown
+All screens must implement:
+- Proper loading states with skeletons
+- Error states with retry functionality
+- Empty states with helpful messaging
+- Network error handling with offline support
+- Form validation with user-friendly error messages
+```
+
+### Performance Optimization
+```markdown
+Implement:
+- Pagination for all list screens (20 items per page)
+- Image caching and lazy loading
+- Firestore query optimization
+- Provider state management best practices
+- Proper disposal of resources and listeners
+```
+
+### Accessibility  
+```markdown
+Ensure:
+- Semantic labels for all interactive elements
+- WCAG AA color contrast compliance
+- Keyboard navigation support
+- Screen reader optimization
+- Proper focus management
+```
+
+### Responsive Design
+```markdown
+Support:
+- Mobile-first design (320px min width)
+- Tablet optimization (768px+ breakpoint)
+- Desktop layout considerations (1024px+)
+- Orientation changes
+- Different screen densities
+```
+
+## GitHub Copilot Usage Examples
+
+### Example 1: Complete Screen Implementation
+```markdown
+COPILOT PROMPT:
+Using the specifications above, create a complete InitiativesListScreen that:
+1. Implements the FilterBar with category chips and public toggle
+2. Uses CommonCard for initiative items
+3. Shows proper loading skeletons
+4. Includes search functionality
+5. Has pull-to-refresh
+6. Applies MiskTheme consistently
+7. Handles error and empty states
+8. Supports responsive design
+```
+
+### Example 2: Component Enhancement
+```markdown
+COPILOT PROMPT:
+Enhance the existing CommonCard component to support:
+1. Optional leading icon or image
+2. Subtitle text with proper typography
+3. Action buttons in bottom row
+4. Badge/chip overlay in top-right
+5. Expandable content area
+6. Custom background colors
+7. Consistent with MiskTheme specifications
+```
+
+This comprehensive specification provides GitHub Copilot with all necessary context to implement consistent, production-ready screens for your MISK EWT ERP application.

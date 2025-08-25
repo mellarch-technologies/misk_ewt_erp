@@ -64,7 +64,7 @@ class _FakeUserProvider extends ChangeNotifier implements UserProvider {
 }
 
 void main() {
-  Widget _wrapWithProviders(Widget child) {
+  Widget wrapWithProviders(Widget child) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppAuthProvider>(create: (_) => _FakeAppAuthProvider()),
@@ -78,7 +78,7 @@ void main() {
 
   group('DashboardScreen Widget Tests', () {
     testWidgets('Dashboard loads and displays key UI elements', (WidgetTester tester) async {
-      await tester.pumpWidget(_wrapWithProviders(const DashboardScreen()));
+      await tester.pumpWidget(wrapWithProviders(const DashboardScreen()));
       await tester.pumpAndSettle();
 
       // AppBar title
@@ -90,7 +90,7 @@ void main() {
     });
 
     testWidgets('Floating action button opens seed options', (WidgetTester tester) async {
-      await tester.pumpWidget(_wrapWithProviders(const DashboardScreen()));
+      await tester.pumpWidget(wrapWithProviders(const DashboardScreen()));
       await tester.pumpAndSettle();
 
       // Tap the actual FAB icon used by the app

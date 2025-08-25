@@ -85,7 +85,34 @@ service cloud.firestore {
                       hasRole('manager'));
     }
 
-    // Rate limiting function
+    // Public pending donations: allow unauthenticated create with strict validation; restrict read/update to admins
+    match /public_pending_donations/{pendingId} {
+      // Create allowed for anyone if payload is safe and minimal
+      allow create: if
+        // Amount and currency
+        (request.resource.data.amount is number && request.resource.data.amount > 0) &&
+        (request.resource.data.currency == 'INR') &&
+        // Status/method/source
+        (request.resource.data.status == 'pending') &&
+        ((request.resource.data.method == 'bank') ||
+         (request.resource.data.method == 'upi') ||
+         (request.resource.data.method == 'razorpay')) &&
+        (request.resource.data.source == 'public_app') &&
+        // Donor block (minimal required)
+        (request.resource.data.donor is map) &&
+        (request.resource.data.donor.name is string) &&
+        (request.resource.data.donor.email is string) &&
+        // Server timestamps must be provided (type check only)
+        (request.resource.data.createdAt is timestamp) &&
+        (request.resource.data.updatedAt is timestamp) &&
+        // Disallow privileged fields
+        !(request.resource.data.keys().hasAny(['receiptNo','bankReconciled','reconciledAt','receivedAt','txnId','initiative','campaign']));
+
+      // Admins can read/update/delete for reconciliation workflows
+      allow read, update, delete: if isSignedIn() && (isSuperAdmin() || hasRole('admin') || hasRole('manager'));
+    }
+
+    // Rate limiting function (placeholder)
     function isNotRateLimited() {
       return request.time > resource.data.lastAccess + duration.value(1, 'm');
     }

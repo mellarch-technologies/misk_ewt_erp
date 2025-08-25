@@ -258,7 +258,7 @@ class _DonationsUnifiedScreenState extends State<DonationsUnifiedScreen> {
                     initialValue: _selectedInitiativeId ?? '',
                     items: [
                       const DropdownMenuItem(value: '', child: Text('All initiatives')),
-                      ..._initiatives.map((i) => DropdownMenuItem(value: i.id, child: Text(i.title))).toList(),
+                      ..._initiatives.map((i) => DropdownMenuItem(value: i.id, child: Text(i.title))),
                     ],
                     onChanged: (v) async {
                       setState(() {
@@ -283,7 +283,7 @@ class _DonationsUnifiedScreenState extends State<DonationsUnifiedScreen> {
                     initialValue: _selectedCampaignId ?? '',
                     items: [
                       const DropdownMenuItem(value: '', child: Text('All campaigns')),
-                      ..._campaignsForSelectedInit().map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
+                      ..._campaignsForSelectedInit().map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
                     ],
                     onChanged: (v) async {
                       setState(() {

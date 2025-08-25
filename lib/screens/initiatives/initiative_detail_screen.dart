@@ -169,7 +169,7 @@ class InitiativeDetailScreen extends StatelessWidget {
                 );
               }).toList(),
             );
-          }).toList(),
+          }),
         ],
       ),
     );

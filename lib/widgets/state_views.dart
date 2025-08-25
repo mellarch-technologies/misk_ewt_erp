@@ -117,6 +117,8 @@ class SkeletonList extends StatelessWidget {
     return ListView.separated(
       padding: padding,
       itemCount: itemCount,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) => const _SkeletonListTile(),
     );

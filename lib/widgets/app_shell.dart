@@ -12,6 +12,7 @@ import '../screens/users/users_list_screen.dart';
 import '../providers/app_auth_provider.dart';
 import '../providers/permission_provider.dart';
 import '../screens/events_announcements/events_announcements_list_screen.dart';
+import '../screens/dashboard_v2_screen.dart';
 
 class AppShell extends StatefulWidget {
   // Global access to current shell state for tab switching
@@ -51,11 +52,6 @@ class _NavItem {
   });
 }
 
-class _MoreNavItem extends _NavItem {
-  const _MoreNavItem()
-      : super(pageIndex: -1, icon: Icons.more_horiz, selectedIcon: Icons.more_horiz, label: 'More');
-}
-
 class _AppShellState extends State<AppShell> {
   static const _prefsKeyLastTab = 'last_tab_index';
   int _index = 0;
@@ -69,7 +65,17 @@ class _AppShellState extends State<AppShell> {
     const TasksListScreen(inShell: true),
     const DonationsUnifiedScreen(inShell: true),
     const GlobalSettingsScreen(inShell: true),
-    const EventsAnnouncementsListScreen(inShell: true), // appended
+    const EventsAnnouncementsListScreen(inShell: true),
+    const DashboardV2Screen(), // Labs: Dashboard v2 experiment
+  ];
+
+  // Primary tabs per design spec (order matters for BottomNav and Rail)
+  static const List<int> _primaryTabOrder = [
+    AppShell.tabDashboard,
+    AppShell.tabInitiatives,
+    AppShell.tabCampaigns,
+    AppShell.tabDonations,
+    AppShell.tabSettings,
   ];
 
   @override
@@ -98,15 +104,7 @@ class _AppShellState extends State<AppShell> {
     final user = auth.user;
 
     final String? photoUrl = user?.photoURL;
-    // initials computed but we won't display raw letter anymore
-    final String initials = () {
-      final name = user?.displayName ?? user?.email ?? 'U';
-      final parts = name.trim().split(' ');
-      if (parts.length >= 2) {
-        return (parts.first.isNotEmpty ? parts.first[0] : '') + (parts.last.isNotEmpty ? parts.last[0] : '');
-      }
-      return name.isNotEmpty ? name[0].toUpperCase() : 'U';
-    }();
+    // initials were previously computed for an avatar fallback, but we use an icon instead when no photo exists
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -161,9 +159,7 @@ class _AppShellState extends State<AppShell> {
     _NavItem(pageIndex: AppShell.tabSettings, icon: Icons.settings_outlined, selectedIcon: Icons.settings, label: 'Settings'),
   ];
 
-  // Helper to compute visible nav items based on permissions
   List<_NavItem> _visibleNavItems(PermissionProvider perm) {
-    // While permissions are loading, show all items to avoid flicker
     if (perm.isLoading) return _allNavItems;
     return _allNavItems.where((item) {
       if (item.permissionKey == null) return true;
@@ -171,26 +167,14 @@ class _AppShellState extends State<AppShell> {
     }).toList(growable: false);
   }
 
-  List<_NavItem> _bottomPrimaryItems(List<_NavItem> visible) {
-    // Desired order: Dashboard, Tasks, Initiatives, Campaigns, Donations, Settings
-    const desiredOrder = [
-      AppShell.tabDashboard,
-      AppShell.tabTasks,
-      AppShell.tabInitiatives,
-      AppShell.tabCampaigns,
-      AppShell.tabDonations,
-      AppShell.tabSettings,
-    ];
-    final byIndex = {for (var n in visible) n.pageIndex: n};
+  List<_NavItem> _visiblePrimaryItems(List<_NavItem> visibleAll) {
+    final byIndex = {for (var n in visibleAll) n.pageIndex: n};
     final items = <_NavItem>[];
-    for (final idx in desiredOrder) {
+    for (final idx in _primaryTabOrder) {
       final n = byIndex[idx];
       if (n != null) items.add(n);
     }
-    // Cap at 5; if all 6 are present, Settings will remain in Drawer
-    if (items.length > 5) {
-      return items.sublist(0, 5);
-    }
+    // BottomNav max 5 items; _primaryTabOrder already 5
     return items;
   }
 
@@ -205,28 +189,28 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final perm = context.watch<PermissionProvider>();
-    final visible = _visibleNavItems(perm);
+    final visibleAll = _visibleNavItems(perm);
+    final primaryItems = _visiblePrimaryItems(visibleAll);
 
-    // Ensure current index is valid/visible; if not, switch to first visible
-    final selectedVisibleIndex = visible.indexWhere((n) => n.pageIndex == _index);
-    if (selectedVisibleIndex == -1 && visible.isNotEmpty) {
-      // Defer changing index until after build
+    // Ensure current index is valid; if not visible at all, switch to first primary
+    final isIndexVisible = visibleAll.any((n) => n.pageIndex == _index);
+    if (!isIndexVisible && primaryItems.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _setIndex(visible.first.pageIndex);
+        _setIndex(primaryItems.first.pageIndex);
       });
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 800; // tablet/desktop breakpoint
+        final wide = constraints.maxWidth >= 768; // align with spec breakpoint
         final body = IndexedStack(index: _index, children: _pages);
 
         if (wide) {
-          // Wide layout: Scaffold with top AppBar and permanent left rail
+          // Wide layout: top AppBar + left Rail with PRIMARY items only
+          final railIndex = primaryItems.indexWhere((n) => n.pageIndex == _index);
           return Scaffold(
             appBar: AppBar(
-              // Removed logo from AppBar per request
               title: const Text('MISK Mini ERP'),
               actions: [
                 _buildAppBarActions(context),
@@ -235,19 +219,19 @@ class _AppShellState extends State<AppShell> {
             body: Row(
               children: [
                 NavigationRail(
-                  selectedIndex: selectedVisibleIndex == -1 ? 0 : selectedVisibleIndex,
-                  onDestinationSelected: (i) => _setIndex(visible[i].pageIndex),
+                  selectedIndex: railIndex == -1 ? 0 : railIndex,
+                  onDestinationSelected: (i) => _setIndex(primaryItems[i].pageIndex),
                   labelType: NavigationRailLabelType.all,
                   leading: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Image.asset('assets/misk_logo.png', height: 56),
                   ),
                   destinations: [
-                    for (final n in visible)
+                    for (final n in primaryItems)
                       NavigationRailDestination(icon: Icon(n.icon), selectedIcon: Icon(n.selectedIcon), label: Text(n.label)),
                   ],
                 ),
-                // Fancy divider: subtle gold line with soft shadow
+                // Divider
                 Container(
                   width: 14,
                   decoration: const BoxDecoration(
@@ -274,91 +258,102 @@ class _AppShellState extends State<AppShell> {
                 Expanded(child: body),
               ],
             ),
+            drawer: _buildDrawer(visibleAll),
           );
         }
 
-        // Narrow layout: Drawer + top AppBar + bottom NavigationBar for primaries
-        final bottomItems = _bottomPrimaryItems(visible);
-        final bottomIndex = bottomItems.indexWhere((n) => n.pageIndex == _index);
-
+        // Narrow layout: Drawer + top AppBar + Bottom NavigationBar for PRIMARY items only
+        final bottomIndex = primaryItems.indexWhere((n) => n.pageIndex == _index);
         return Scaffold(
           appBar: AppBar(
-            // Removed logo from AppBar per request
             title: const Text('MISK Mini ERP'),
             actions: [
               _buildAppBarActions(context),
             ],
           ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                DrawerHeader(
-                  decoration: const BoxDecoration(color: MiskTheme.miskGold),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset('assets/misk_logo.png', height: 56),
-                      const SizedBox(height: 8),
-                      const Text('MISK Mini ERP', style: TextStyle(color: Colors.white, fontSize: 18)),
-                    ],
-                  ),
-                ),
-                // Core section
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Text('Core', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
-                ),
-                for (final n in visible.where((n) => n.pageIndex == AppShell.tabDashboard || n.pageIndex == AppShell.tabUsers))
-                  ListTile(
-                    leading: Icon(n.selectedIcon),
-                    title: Text(n.label),
-                    selected: _index == n.pageIndex,
-                    onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
-                  ),
-                const Divider(height: 0),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Text('Operations', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
-                ),
-                for (final n in visible.where((n) => n.pageIndex == AppShell.tabInitiatives || n.pageIndex == AppShell.tabCampaigns || n.pageIndex == AppShell.tabTasks || n.pageIndex == AppShell.tabDonations || n.pageIndex == AppShell.tabEvents))
-                  ListTile(
-                    leading: Icon(n.selectedIcon),
-                    title: Text(n.label),
-                    selected: _index == n.pageIndex,
-                    onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
-                  ),
-                const Divider(height: 0),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Text('Settings', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
-                ),
-                for (final n in visible.where((n) => n.pageIndex == AppShell.tabSettings))
-                  ListTile(
-                    leading: Icon(n.selectedIcon),
-                    title: Text(n.label),
-                    selected: _index == n.pageIndex,
-                    onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
-                  ),
-              ],
-            ),
-          ),
+          drawer: _buildDrawer(visibleAll),
           body: body,
-          bottomNavigationBar: bottomItems.isEmpty
+          bottomNavigationBar: primaryItems.isEmpty
               ? null
               : NavigationBar(
                   selectedIndex: bottomIndex == -1 ? 0 : bottomIndex,
-                  onDestinationSelected: (i) {
-                    final sel = bottomItems[i];
-                    _setIndex(sel.pageIndex);
-                  },
+                  onDestinationSelected: (i) => _setIndex(primaryItems[i].pageIndex),
                   destinations: [
-                    for (final n in bottomItems)
+                    for (final n in primaryItems)
                       NavigationDestination(icon: Icon(n.icon), selectedIcon: Icon(n.selectedIcon), label: _shortLabel(n.label)),
                   ],
                 ),
         );
       },
+    );
+  }
+
+  Widget _buildDrawer(List<_NavItem> visible) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: MiskTheme.miskGold),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset('assets/misk_logo.png', height: 56),
+                const SizedBox(height: 8),
+                const Text('MISK Mini ERP', style: TextStyle(color: Colors.white, fontSize: 18)),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text('Core', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+          ),
+          for (final n in visible.where((n) => n.pageIndex == AppShell.tabDashboard || n.pageIndex == AppShell.tabUsers))
+            ListTile(
+              leading: Icon(n.selectedIcon),
+              title: Text(n.label),
+              selected: _index == n.pageIndex,
+              onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
+            ),
+          const Divider(height: 0),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text('Operations', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+          ),
+          for (final n in visible.where((n) => n.pageIndex == AppShell.tabInitiatives || n.pageIndex == AppShell.tabCampaigns || n.pageIndex == AppShell.tabTasks || n.pageIndex == AppShell.tabDonations || n.pageIndex == AppShell.tabEvents))
+            ListTile(
+              leading: Icon(n.selectedIcon),
+              title: Text(n.label),
+              selected: _index == n.pageIndex,
+              onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
+            ),
+          const Divider(height: 0),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text('Settings', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+          ),
+          for (final n in visible.where((n) => n.pageIndex == AppShell.tabSettings))
+            ListTile(
+              leading: Icon(n.selectedIcon),
+              title: Text(n.label),
+              selected: _index == n.pageIndex,
+              onTap: () { _setIndex(n.pageIndex); Navigator.pop(context); },
+            ),
+          const Divider(height: 0),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text('Labs', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.science_outlined),
+            title: const Text('Dashboard (v2) — Experimental'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).pushNamed('/dashboard_v2');
+            },
+          ),
+        ],
+      ),
     );
   }
 }

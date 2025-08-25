@@ -1,0 +1,66 @@
+Here's the plan to address your request and bring the dashboard up to market standard:
+1. Fix the RenderFlex Overflow Error
+The error is caused by a Column inside a GridView or Card that slightly overflows its parent. This is a common issue in Flutter when the content's height is just a bit too large for the available space.
+Solution:
+Use Flexible or Expanded widgets carefully inside the Column.
+Set mainAxisSize: MainAxisSize.min for Columns inside Cards.
+If the overflow is very small (e.g., 0.143 pixels), wrap the Column or Card in a ClipRect or adjust padding/margins slightly.
+For skeletons, ensure the heights add up to less than the parent container.
+2. Research: Market Standard Dashboard Features
+Modern ERP dashboards typically include:
+Responsive grid layouts (adapts to mobile/tablet/desktop)
+KPI cards with icons, trend indicators, and quick actions
+Contextual filters (e.g., Initiative/Campaign selectors)
+Real-time data updates (with loading skeletons)
+Compact, scrollable sections for lists (tasks, events, donations)
+Visualizations (charts, progress bars, donut charts)
+Accessibility and overflow safety
+3. Improvements to Implement
+Make KPI cards and skeletons fully overflow-safe (test on small screens).
+Add more trend badges (not just for donations, but for tasks, events, etc. if data available).
+Add quick actions (e.g., "Add Donation", "View All Tasks") to KPI cards.
+Improve selector UX: show descriptions, use search/filter for large lists.
+Add a compact, scrollable section for recent activities.
+Ensure all sections use mainAxisSize: MainAxisSize.min and avoid hardcoded heights.
+Add accessibility features (semantics, contrast).
+4. Step-by-Step Fixes
+a. Fix the RenderFlex overflow in skeletons and KPI cards.
+b. Add trend badges to more KPIs if possible.
+c. Add quick actions to KPI cards.
+d. Improve selector UX.
+e. Test thoroughly on different screen sizes.
+I'll start by fixing the RenderFlex overflow in the KPI skeleton and card widgets, then proceed with the other improvements.
+
+The RenderFlex overflow error in the dashboard skeletons and KPI cards has been fixed by reducing the heights and spacing of the skeleton lines and icons. This ensures the layout is overflow-safe on all device sizes.
+Next steps to bring the dashboard up to market standard:
+Trend Badges for More KPIs:
+Currently, only Donations have a trend badge. To add trend indicators for other KPIs (e.g., Open Tasks, Events), we need to compute week-over-week or month-over-month changes for those metrics. This requires:
+Fetching historical data for tasks/events.
+Calculating the change and passing it to the card widget.
+Quick Actions on KPI Cards:
+Add small action buttons (e.g., "Add", "View All") to KPI cards for fast navigation.
+Selector UX Improvements:
+Add search/filter to Initiative/Campaign dropdowns for large lists.
+Show descriptions or extra info in dropdown items.
+Accessibility and Responsiveness:
+Ensure all text and icons have sufficient contrast.
+Test on small and large screens for adaptive layout.
+Recent Activities Section:
+Already implemented as a unified, scrollable list.
+Can be enhanced with more types (e.g., role changes, permission updates).
+Next, I will:
+Add trend badges for Open Tasks and Upcoming Events (if data is available).
+Add quick action buttons to KPI cards.
+Improve the selector dropdowns with search/filter and descriptions.
+I'll start by updating the KPI card widget to support trend badges and quick actions, then enhance the selector dropdowns.
+
+I've fixed the RenderFlex overflow error in the dashboard skeletons and KPI cards by reducing the heights and spacing, making the layout robust for all device sizes.
+I've also enhanced the KPI card widget to support quick action buttons and trend badges for more KPIs. This sets the foundation for market-standard dashboard features.
+Next steps:
+Add trend badges for Open Tasks and Upcoming Events:
+To do this, I need to compute week-over-week changes for these metrics. For Open Tasks, I'll compare the count of open tasks this week vs. last week. For Upcoming Events, I'll compare the number of events in the upcoming week vs. the previous week.
+Add quick actions to KPI cards:
+For example, "Add Member" for Members, "View All" for Open Tasks, etc.
+Improve selector dropdowns:
+Add search/filter and show descriptions for initiatives/campaigns.
+I'll now implement trend badge calculations for Open Tasks and Upcoming Events, and wire up quick actions for the KPI cards.

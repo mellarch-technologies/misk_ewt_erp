@@ -61,7 +61,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
               ),
               const SizedBox(height: MiskTheme.spacingMedium),
               DropdownButtonFormField<MemberRole>(
-                value: _role,
+                initialValue: _role,
                 items: MemberRole.values
                     .map((r) =>
                     DropdownMenuItem(value: r, child: Text(r.name.toUpperCase())))

@@ -26,7 +26,7 @@ class StickyFilters extends StatelessWidget {
         boxShadow: isSticky
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -54,7 +54,7 @@ class StickyFilters extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: MiskTheme.miskGold.withOpacity(0.1),
+                      color: MiskTheme.miskGold.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -77,10 +77,10 @@ class StickyFilters extends StatelessWidget {
                 vertical: MiskTheme.spacingSmall,
               ),
               decoration: BoxDecoration(
-                color: MiskTheme.miskGold.withOpacity(0.05),
+                color: MiskTheme.miskGold.withValues(alpha: 0.05),
                 border: Border(
                   top: BorderSide(
-                    color: MiskTheme.miskGold.withOpacity(0.2),
+                    color: MiskTheme.miskGold.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -94,9 +94,9 @@ class StickyFilters extends StatelessWidget {
                     ActionChip(
                       label: const Text('Clear all'),
                       onPressed: onClearAll,
-                      backgroundColor: MiskTheme.miskErrorRed.withOpacity(0.1),
+                      backgroundColor: MiskTheme.miskErrorRed.withValues(alpha: 0.1),
                       side: BorderSide(
-                        color: MiskTheme.miskErrorRed.withOpacity(0.3),
+                        color: MiskTheme.miskErrorRed.withValues(alpha: 0.3),
                       ),
                     ),
                 ],
@@ -127,10 +127,10 @@ class ActiveFilterChip extends StatelessWidget {
       label: Text(label),
       avatar: icon != null ? Icon(icon, size: 18) : null,
       onDeleted: onDeleted,
-      backgroundColor: MiskTheme.miskLightGreen.withOpacity(0.1),
+      backgroundColor: MiskTheme.miskLightGreen.withValues(alpha: 0.1),
       deleteIconColor: MiskTheme.miskDarkGreen,
       side: BorderSide(
-        color: MiskTheme.miskLightGreen.withOpacity(0.3),
+        color: MiskTheme.miskLightGreen.withValues(alpha: 0.3),
       ),
     );
   }

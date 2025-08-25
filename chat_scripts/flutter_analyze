@@ -1,0 +1,350 @@
+  image_picker 1.1.2 (1.2.0 available)
+  image_picker_android 0.8.12+25 (0.8.13 available)
+  image_picker_for_web 3.0.6 (3.1.0 available)
+  image_picker_ios 0.8.12+2 (0.8.13 available)
+  image_picker_linux 0.2.1+2 (0.2.2 available)
+  image_picker_macos 0.2.1+2 (0.2.2 available)
+  image_picker_windows 0.2.1+1 (0.2.2 available)
+  js 0.6.7 (0.7.2 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.16.0 (1.17.0 available)
+  path_provider_foundation 2.4.1 (2.4.2 available)
+  provider 6.1.5 (6.1.5+1 available)
+  test_api 0.7.6 (0.7.7 available)
+Got dependencies!
+22 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+PS E:\MiSK\app\misk_ewt_erp> flutter analyze
+Analyzing misk_ewt_erp...
+
+   info - Don't invoke 'print' in production code - lib-v1.0\providers\permission_provider.dart:41:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.0\providers\permission_provider.dart:45:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.0\providers\user_provider.dart:29:7 - avoid_print
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.0\screens\dashboard_screen.dart:91:49 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.0\screens\dashboard_screen.dart:92:52 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.0\screens\dashboard_screen.dart:204:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.0\screens\dashboard_screen.dart:261:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.0\screens\dashboard_screen.dart:291:52 - deprecated_member_use
+  error - The method 'forgotPassword' isn't defined for the type 'AppAuthProvider' - lib-v1.0\screens\forgot_password_screen.dart:39:26 - undefined_method
+   info - Don't invoke 'print' in production code - lib-v1.0\screens\users\user_form_screen.dart:71:7 - avoid_print
+   info - Don't use 'BuildContext's across async gaps - lib-v1.0\screens\users\user_form_screen.dart:261:42 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib-v1.0\screens\users\user_form_screen.dart:265:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib-v1.0\screens\users\users_list_screen.dart:122:47 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib-v1.0\screens\users\users_list_screen.dart:146:38 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib-v1.0\screens\users\users_list_screen.dart:159:43 - use_build_context_synchronously
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib-v1.0\theme\app_theme.dart:63:9 -
+          deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib-v1.0\theme\app_theme.dart:69:9 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.0\theme\app_theme.dart:117:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.0\theme\app_theme.dart:260:31 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\campaign_provider.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\event_announcement_provider.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\initiative_provider.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\permission_provider.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\task_provider.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib-v1.1\providers\user_provider.dart:38:7 - avoid_print
+   info - Invalid use of a private type in a public API - lib-v1.1\screens\campaigns\campaign_form_screen.dart:11:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib-v1.1\screens\campaigns\campaign_form_screen.dart:59:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:118:23 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:210:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:217:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:234:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:241:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:258:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\dashboard_screen.dart:265:48 - use_build_context_synchronously
+   info - Invalid use of a private type in a public API - lib-v1.1\screens\events_announcements\event_announcement_form_screen.dart:11:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib-v1.1\screens\events_announcements\event_announcement_form_screen.dart:59:35 - use_build_context_synchronously
+   info - Invalid use of a private type in a public API - lib-v1.1\screens\initiatives\initiative_form_screen.dart:10:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib-v1.1\screens\initiatives\initiative_form_screen.dart:58:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\roles\role_form_screen.dart:152:48 -
+          use_build_context_synchronously
+   info - Invalid use of a private type in a public API - lib-v1.1\screens\tasks\task_form_screen.dart:11:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib-v1.1\screens\tasks\task_form_screen.dart:70:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib-v1.1\screens\users\user_form_screen.dart:341:21 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib-v1.1\screens\users\users_list_screen.dart:92:15 - use_build_context_synchronously
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib-v1.1\theme\app_theme.dart:63:9 -
+          deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - lib-v1.1\theme\app_theme.dart:69:9 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.1\theme\app_theme.dart:117:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib-v1.1\theme\app_theme.dart:260:31 - deprecated_member_use
+  error - Invalid constant value - lib.-v0.9\main.dart:23:23 - invalid_constant
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:23:23 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\main.dart:25:33 - invalid_constant
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:25:33 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:44:14 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:92:14 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:133:26 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:139:26 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\main.dart:150:26 - invalid_constant
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:150:26 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:161:26 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:173:36 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:187:26 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:195:30 - undefined_identifier
+  error - Undefined name 'AppTheme' - lib.-v0.9\main.dart:203:32 - undefined_identifier
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib.-v0.9\screens\dashboard_screen.dart:74:30 - use_build_context_synchronously
+   info - Statements in an if should be enclosed in a block - lib.-v0.9\screens\dashboard_screen.dart:110:27 - curly_braces_in_flow_control_structures
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\dashboard_screen.dart:135:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\dashboard_screen.dart:143:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\dashboard_screen.dart:364:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\dashboard_screen.dart:394:41 - deprecated_member_use
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:115:26 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:118:47 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:134:26 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:137:47 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:154:24 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:159:26 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:168:47 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:168:47 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:170:30 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:172:57 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:175:51 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:175:51 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:177:30 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:178:59 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\forgot_password_screen.dart:181:47 -
+          deprecated_member_use
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:205:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:205:34 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:207:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:207:34 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:209:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:209:34 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:211:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:211:34 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:227:20 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:231:24 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:240:20 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:240:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:244:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:244:32 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:249:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:254:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:254:32 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:259:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:264:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:264:32 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:268:25 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:268:25 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:269:23 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:269:23 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:272:20 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:273:49 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:275:22 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:282:22 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:288:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:288:32 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:292:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:292:32 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:306:35 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:306:35 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:327:23 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:331:24 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:340:20 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:340:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:344:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:344:32 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:349:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:354:32 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:354:32 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:359:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:369:37 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:369:37 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:371:16 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:372:45 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:374:18 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:382:20 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:385:33 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:385:33 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:390:24 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:437:65 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:437:65 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:440:41 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:440:41 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:455:26 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:469:37 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:469:37 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:471:16 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:472:45 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:474:18 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:485:22 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:488:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:488:34 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:491:61 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:491:61 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:498:30 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:505:34 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:505:34 - undefined_identifier
+  error - Invalid constant value - lib.-v0.9\screens\forgot_password_screen.dart:512:41 - invalid_constant
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:512:41 - undefined_identifier
+  error - Undefined name 'MiskTheme' - lib.-v0.9\screens\forgot_password_screen.dart:517:32 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\login_screen.dart:120:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\screens\login_screen.dart:386:42 - deprecated_member_use
+  error - Target of URI doesn't exist: '../models/project_model.dart' - lib.-v0.9\services\firebase_service.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../models/phase_model.dart' - lib.-v0.9\services\firebase_service.dart:6:8 - uri_does_not_exist
+  error - The name 'Project' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:10:34 - non_type_as_type_argument
+  error - The name 'Project' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:13:61 - non_type_as_type_argument
+  error - Undefined name 'Project' - lib.-v0.9\services\firebase_service.dart:14:40 - undefined_identifier
+  error - The method 'toFirestore' can't be unconditionally invoked because the receiver can be 'null' - lib.-v0.9\services\firebase_service.dart:15:44 -
+         unchecked_use_of_nullable_value
+  error - The name 'Project' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:20:15 - non_type_as_type_argument
+  error - Undefined class 'Project' - lib.-v0.9\services\firebase_service.dart:27:27 - undefined_class
+  error - The name 'Phase' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:32:15 - non_type_as_type_argument
+  error - The name 'Phase' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:36:24 - non_type_as_type_argument
+  error - Undefined name 'Phase' - lib.-v0.9\services\firebase_service.dart:37:40 - undefined_identifier
+  error - The method 'toFirestore' can't be unconditionally invoked because the receiver can be 'null' - lib.-v0.9\services\firebase_service.dart:38:40 -
+         unchecked_use_of_nullable_value
+  error - Undefined class 'Phase' - lib.-v0.9\services\firebase_service.dart:45:43 - undefined_class
+  error - The name 'Phase' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firebase_service.dart:49:24 - non_type_as_type_argument
+  error - Undefined name 'Phase' - lib.-v0.9\services\firebase_service.dart:50:40 - undefined_identifier
+  error - The method 'toFirestore' can't be unconditionally invoked because the receiver can be 'null' - lib.-v0.9\services\firebase_service.dart:51:40 -
+         unchecked_use_of_nullable_value
+  error - Target of URI doesn't exist: '../models/member_model.dart' - lib.-v0.9\services\firestore_service.dart:2:8 - uri_does_not_exist
+  error - The name 'Member' isn't a type, so it can't be used as a type argument - lib.-v0.9\services\firestore_service.dart:8:15 - non_type_as_type_argument
+  error - Undefined name 'Member' - lib.-v0.9\services\firestore_service.dart:12:49 - undefined_identifier
+  error - Undefined class 'Member' - lib.-v0.9\services\firestore_service.dart:14:26 - undefined_class
+  error - Undefined class 'Member' - lib.-v0.9\services\firestore_service.dart:20:29 - undefined_class
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib.-v0.9\theme\app_theme.dart:29:9 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\theme\app_theme.dart:211:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib.-v0.9\theme\app_theme.dart:254:31 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\providers\permission_provider.dart:24:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\user_provider.dart:38:7 - avoid_print
+   info - Invalid use of a private type in a public API - lib\screens\campaigns\campaign_form_screen.dart:22:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\campaigns\campaign_form_screen.dart:321:48 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\campaigns\campaigns_list_screen.dart:218:19 -
+          use_build_context_synchronously
+warning - The value of the field '_userDesignation' isn't used - lib\screens\dashboard_screen.dart:36:10 - unused_field
+   info - Don't use 'BuildContext's across async gaps - lib\screens\dashboard_screen.dart:199:22 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\dashboard_screen.dart:325:30 - use_build_context_synchronously
+   info - Statements in an if should be enclosed in a block - lib\screens\dashboard_screen.dart:342:27 - curly_braces_in_flow_control_structures
+   info - Don't use 'BuildContext's across async gaps - lib\screens\dashboard_v2_screen.dart:38:23 - use_build_context_synchronously
+   info - Statements in an if should be enclosed in a block - lib\screens\dashboard_v2_screen.dart:306:58 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\screens\dashboard_v2_screen.dart:307:10 - curly_braces_in_flow_control_structures
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_entry_screen.dart:32:28 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_entry_screen.dart:36:7 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_entry_screen.dart:58:9 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:268:68 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:279:74 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:285:67 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:343:75 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:345:73 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:354:77 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:356:75 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:377:79 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\donations\donations_list_screen.dart:379:77 -
+          use_build_context_synchronously
+warning - The value of the field '_resultCount' isn't used - lib\screens\donations\donations_unified_screen.dart:56:7 - unused_field
+warning - The declaration '_clearAllFilters' isn't referenced - lib\screens\donations\donations_unified_screen.dart:199:8 - unused_element
+warning - The declaration '_getInitiativeName' isn't referenced - lib\screens\donations\donations_unified_screen.dart:212:10 - unused_element
+warning - The declaration '_getCampaignName' isn't referenced - lib\screens\donations\donations_unified_screen.dart:217:10 - unused_element
+warning - The declaration '_onSearchChanged' isn't referenced - lib\screens\donations\donations_unified_screen.dart:222:16 - unused_element
+   info - Invalid use of a private type in a public API - lib\screens\events_announcements\event_announcement_form_screen.dart:22:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib\screens\events_announcements\event_announcement_form_screen.dart:62:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\events_announcements\event_announcement_form_screen.dart:265:48 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\events_announcements\events_announcements_list_screen.dart:169:79 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\events_announcements\events_announcements_list_screen.dart:171:77 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\events_announcements\events_announcements_list_screen.dart:225:19 -
+          use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\forgot_password_screen.dart:113:54 - deprecated_member_use
+   info - Invalid use of a private type in a public API - lib\screens\initiatives\initiative_form_screen.dart:21:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\initiatives\initiative_form_screen.dart:434:48 -
+          use_build_context_synchronously
+   info - Statements in an if should be enclosed in a block - lib\screens\initiatives\initiatives_list_screen.dart:181:48 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\screens\initiatives\initiatives_list_screen.dart:182:46 - curly_braces_in_flow_control_structures
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\initiatives\initiatives_list_screen.dart:235:19 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\roles\role_form_screen.dart:133:58 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\roles\role_form_screen.dart:156:43 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\roles\role_form_screen.dart:164:48 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\roles\roles_list_screen.dart:109:49 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:28:44 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:32:18 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:33:38 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:35:38 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:38:32 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:45:32 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:114:54 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:117:21 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:119:42 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:143:56 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:155:46 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:159:23 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:161:44 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:178:56 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:181:53 -
+          use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\security\app_lock_settings_screen.dart:185:46 -
+          use_build_context_synchronously
+warning - The value of the field '_errorMsg' isn't used - lib\screens\settings\global_settings_screen.dart:28:11 - unused_field
+   info - Don't use 'BuildContext's across async gaps - lib\screens\settings\global_settings_screen.dart:99:36 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\settings\global_settings_screen.dart:101:34 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\settings\global_settings_screen.dart:104:32 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings\global_settings_screen.dart:152:41 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings\global_settings_screen.dart:155:45 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings\global_settings_screen.dart:184:37 -
+          deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings\global_settings_screen.dart:323:68 -
+          deprecated_member_use
+warning - The declaration '_filteredSettings' isn't referenced - lib\screens\settings\global_settings_screen.dart:436:34 - unused_element
+   info - Invalid use of a private type in a public API - lib\screens\tasks\task_form_screen.dart:19:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\tasks\task_form_screen.dart:201:48 - use_build_context_synchronously
+   info - Missing type annotation - lib\screens\tasks\tasks_list_screen.dart:183:42 - strict_top_level_inference
+   info - Missing type annotation - lib\screens\tasks\tasks_list_screen.dart:204:26 - strict_top_level_inference
+   info - Missing type annotation - lib\screens\tasks\tasks_list_screen.dart:224:18 - strict_top_level_inference
+   info - Missing type annotation - lib\screens\tasks\tasks_list_screen.dart:233:26 - strict_top_level_inference
+   info - Don't use 'BuildContext's across async gaps - lib\screens\tasks\tasks_list_screen.dart:263:40 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\tasks\tasks_list_screen.dart:553:19 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\screens\users\user_form_screen.dart:487:21 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\users\users_list_screen.dart:52:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\users\users_list_screen.dart:72:15 - use_build_context_synchronously
+   info - Invalid use of a private type in a public API - lib\widgets\app_shell.dart:18:26 - library_private_types_in_public_api
+  error - Expected to find ')' - lib\widgets\campaign_card.dart:277:8 - expected_token
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\campaign_card.dart:280:1 - expected_executable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\form_components.dart:25:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\form_components.dart:117:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\form_components.dart:352:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:29:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:57:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:80:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:83:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:97:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:99:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:130:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sticky_filters.dart:133:41 - deprecated_member_use
+
+278 issues found. (ran in 3.3s)
